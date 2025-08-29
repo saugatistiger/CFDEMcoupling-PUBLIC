@@ -1,0 +1,1158 @@
+
+//   run_parallel_cfdemSolverPiso_periodicChannel_CFDDEM   //
+
+/home/tigerisking/CFDEM/CFDEMcoupling-PUBLIC-v2506/tutorials/cfdemSolverPiso/periodicChannel/CFD
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : 615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : cfdemSolverPiso -parallel
+Date   : Aug 25 2025
+Time   : 21:16:14
+Host   : ae447-9214
+PID    : 36465
+I/O    : uncollated
+Case   : /home/tigerisking/CFDEM/CFDEMcoupling-PUBLIC-v2506/tutorials/cfdemSolverPiso/periodicChannel/CFD
+nProcs : 4
+Hosts  :
+(
+    (ae447-9214 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, Foam::IOstreamOption::compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 0
+
+
+PISO: Operating solver in PISO mode
+
+Reading field p
+
+Reading physical velocity field U
+Note: only if voidfraction at boundary is 1, U is superficial velocity!!!
+
+
+Reading momentum exchange field Ksl
+
+
+Reading voidfraction field voidfraction = (Vgas/Vparticle)
+
+Reading particle velocity field Us
+
+
+Creating density field rho
+
+Reading/calculating face flux field phi
+
+Generating interstitial face flux field phiByVoidfraction
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type laminar
+Selecting laminar stress model Stokes
+Creating finite volume options from "system/fvOptions"
+
+Selecting finite volume options type meanSupVelocityForce
+    Source: momentumSource
+    State: active
+    - selecting all cells
+    - selected 2048 cell(s) with volume 0.004
+    Initial pressure gradient = 0
+
+--> FOAM Warning : THE FVOPTION meanSupVelocityForce has not been tested/validated!!! 
+
+Reading g_new
+Selecting locateModel engine
+Selecting dataExchangeModel twoWayMPI
+Starting up LIGGGHTS for first time execution
+Executing input script '../DEM/in.liggghts_resume'
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2025-08-03-14:45:38 by tigerisking, git commit bbd23c8521fe0a4f3f5bfd0d3dc9a7dddd68d90b)
+log             ../DEM/log.liggghts
+
+atom_style	    granular
+atom_modify	    map array
+communicate	    single vel yes
+
+boundary	    p f f
+newton		    off
+
+units		    si
+processors	    2 2 1
+
+#read the restart file
+read_restart 	../DEM/post/restart/liggghts.restart
+Reading restart file ...
+version 3 8
+version 3 8
+version 3 8
+WARNING: Restart file version does not match LIGGGHTS version (../read_restart.cpp:507)
+   --> restart file = Version LIGGGHTS-PUBLIC 3.8.0, compiled 2025-08-03-14:40:07 by tigerisking, git commit bbd23c8521fe0a4f3f5bfd0d3dc9a7dddd68d90b
+   --> LIGGGHTS = Version LIGGGHTS-PUBLIC 3.8.0, compiled 2025-08-03-14:45:38 by tigerisking, git commit bbd23c8521fe0a4f3f5bfd0d3dc9a7dddd68d90b
+version 3 8
+WARNING: Restart file used different 3d processor grid (../read_restart.cpp:587)
+  orthogonal box = (0 0 0) to (0.4 0.1 0.1)
+  2 by 2 by 1 MPI processor grid
+  1000 atoms
+
+neighbor	0.0005 bin
+neigh_modify	delay 0
+
+#Material properties required for new pair styles
+
+fix 		m1 all property/global youngsModulus peratomtype 5.e6
+fix 		m2 all property/global poissonsRatio peratomtype 0.45
+fix 		m3 all property/global coefficientRestitution peratomtypepair 1 0.3
+fix 		m4 all property/global coefficientFriction peratomtypepair 1 0.5
+
+#pair style
+pair_style gran model hertz tangential history #Hertzian without cohesion
+pair_coeff	* *
+
+#timestep, gravity
+timestep	0.00001
+fix		gravi all gravity 9.81 vector 0.0 0.0 1.0
+
+#walls
+#fix xwalls1 all wall/gran model hertz tangential history primitive type 1  xplane 0.0
+#fix xwalls2 all wall/gran model hertz tangential history primitive type 1  xplane 0.4
+fix ywalls1 all wall/gran model hertz tangential history primitive type 1  yplane 0.0
+Resetting global state of Fix history_ywalls1 Style property/atom from restart file info
+Resetting per-atom state of Fix history_ywalls1 Style property/atom from restart file info
+fix ywalls2 all wall/gran model hertz tangential history primitive type 1  yplane 0.1
+Resetting global state of Fix history_ywalls2 Style property/atom from restart file info
+Resetting per-atom state of Fix history_ywalls2 Style property/atom from restart file info
+fix zwalls1 all wall/gran model hertz tangential history primitive type 1  zplane 0.0
+Resetting global state of Fix history_zwalls1 Style property/atom from restart file info
+Resetting per-atom state of Fix history_zwalls1 Style property/atom from restart file info
+fix zwalls2 all wall/gran model hertz tangential history primitive type 1  zplane 0.1
+Resetting global state of Fix history_zwalls2 Style property/atom from restart file info
+Resetting per-atom state of Fix history_zwalls2 Style property/atom from restart file info
+
+#cfd coupling
+fix		cfd all couple/cfd couple_every 100 mpi
+couple_every as specified in LIGGGHTS is overriden by calling external program (../fix_cfd_coupling.cpp:114)
+fix		cfd2 all couple/cfd/force/implicit
+
+#apply nve integration to all particles that are inserted as single particles
+fix		integr all nve/sphere
+
+#center of mass
+compute         centerOfMass all com
+
+# sum of explicit and implicit drag force given from CFD to DEM
+variable    dragtotalX equal f_cfd2[1]
+variable    dragtotalY equal f_cfd2[2]
+variable    dragtotalZ equal f_cfd2[3]
+
+#screen output
+compute		1 all erotate/sphere
+thermo_style	custom step atoms ke c_1 vol c_centerOfMass[3] v_dragtotalX v_dragtotalY v_dragtotalZ
+thermo		10
+thermo_modify	lost ignore norm no
+
+#insert the first particles so that dump is not empty
+dump 		myDump all stl 1 post/dump_*.stl
+WARNING: Dump mesh/stl cannot find any fix of type 'mesh/surface' to dump (../dump_mesh_stl.cpp:157)
+WARNING: Dump mesh/stl cannot find any fix of type 'mesh/surface' to dump (../dump_mesh_stl.cpp:157)
+#run		1
+dump		dmp all custom 5000 ../DEM/post/dump*.liggghts_restart id type type x y z vx vy vz fx fy fz f_dragforce[1] f_dragforce[2] f_dragforce[3] radius
+undump		myDump
+
+run		    0
+WARNING: Dump mesh/stl cannot find any fix of type 'mesh/surface' to dump (../dump_mesh_stl.cpp:157)
+WARNING: Dump mesh/stl cannot find any fix of type 'mesh/surface' to dump (../dump_mesh_stl.cpp:157)
+Resetting global state of Fix contacthistory Style contacthistory from restart file info
+Resetting per-atom state of Fix contacthistory Style contacthistory from restart file info
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10000     1000  1.3749826e-05  1.1296911e-06          0.004    0.094361295              0              0              0 
+Loop time of 2.54e-06 on 4 procs for 0 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 2.54e-06 (100)
+
+Nlocal:    250 ave 255 max 248 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+Nghost:    9.5 ave 12 max 6 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:    4 ave 5 max 2 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+
+Total # of neighbors = 16
+Ave neighs/atom = 0.016
+Neighbor list builds = 0
+Dangerous builds = 0
+Selecting IOModel basicIO
+Selecting probeModel off
+Selecting voidFractionModel divided
+  Variable volScale was not specified, using default 1 for all particle templates.
+  Note: for more than 10 particle templates, please specify volScale manually.
+Selecting averagingModel dense
+Selecting clockModel off
+start clock measurement at t >0.002
+Selecting smoothingModel off
+Selecting meshMotionModel noMeshMotion
+
+CFDEMcoupling version: cfdem-3.8.1
+, compatible to LIGGGHTS version: 3.8.0
+, compatible to OF version and build: 6-commit-af7d7f427be78e9b9beb6aceca8fe7d5d4636876
+
+You are currently using:
+CFDEM build: 3.8.1-dirty
+
+cg is set to: 1
+LIGGGHTS hosts 1 atom types.
+If BC are important, please provide volScalarFields -imp/expParticleForces-
+ignoring ddt(voidfraction)
+Selecting momCoupleModel implicitCouple
+
+implicit momentum exchange field calculate if alphaP larger than : 1
+Selecting forceModel KochHillDrag
+ No forceSubModel specified - setting to default forceSubModel ImEx.
+ Selecting forceSubModel ImEx
+ reading switches:
+  looking for treatForceExplicit ...  not found in dict, using default. treatForceExplicit = false
+  looking for implForceDEM ...  not found in dict, using default. --> FOAM Warning : 
+ You are using the default value for 'implForceDEM' - beware that in CFDEMcoupling versions newer than 3.8.0 this default value has changed from (previously) false to (now) true!
+implForceDEM = true
+  looking for verbose ...  not found in dict, using default. verbose = false
+  looking for interpolation ...  found in dict. interpolation = true
+  looking for implForceDEMaccumulated ...  not found in dict, using default. implForceDEMaccumulated = false
+  looking for scalarViscosity ...  not found in dict, using default. scalarViscosity = false
+
+cfdemCloud is registering field 'radius', and type 'scalar-atom' ...
+cfdemCloud adds field 'radius' at end of list.
+cfdemCloud is registering field 'x', and type 'vector-atom' ...
+cfdemCloud adds field 'x' at end of list.
+cfdemCloud is registering field 'v', and type 'vector-atom' ...
+cfdemCloud adds field 'v' at end of list.
+cfdemCloud is registering field 'Ksl', and type 'scalar-atom' ...
+cfdemCloud adds field 'Ksl' at end of list.
+cfdemCloud is registering field 'uf', and type 'vector-atom' ...
+cfdemCloud adds field 'uf' at end of list.
+Selecting forceModel gradPForce
+ No forceSubModel specified - setting to default forceSubModel ImEx.
+ Selecting forceSubModel ImEx
+ reading switches:
+  looking for treatForceExplicit ...  not found in dict, using default. treatForceExplicit = true
+  looking for verbose ...  not found in dict, using default. verbose = false
+  looking for interpolation ...  found in dict. interpolation = true
+
+cfdemCloud is registering field 'radius', and type 'scalar-atom' ...
+cfdemCloud already found field 'radius' at position: 0
+cfdemCloud is registering field 'x', and type 'vector-atom' ...
+cfdemCloud already found field 'x' at position: 1
+cfdemCloud is registering field 'v', and type 'vector-atom' ...
+cfdemCloud already found field 'v' at position: 2
+cfdemCloud is registering field 'dragforce', and type 'vector-atom' ...
+cfdemCloud adds field 'dragforce' at end of list.
+Selecting forceModel viscForce
+ No forceSubModel specified - setting to default forceSubModel ImEx.
+ Selecting forceSubModel ImEx
+ reading switches:
+  looking for treatForceExplicit ...  not found in dict, using default. treatForceExplicit = true
+  looking for verbose ...  not found in dict, using default. verbose = false
+  looking for interpolation ...  found in dict. interpolation = true
+  looking for scalarViscosity ...  not found in dict, using default. scalarViscosity = false
+
+cfdemCloud is registering field 'radius', and type 'scalar-atom' ...
+cfdemCloud already found field 'radius' at position: 0
+cfdemCloud is registering field 'x', and type 'vector-atom' ...
+cfdemCloud already found field 'x' at position: 1
+cfdemCloud is registering field 'v', and type 'vector-atom' ...
+cfdemCloud already found field 'v' at position: 2
+cfdemCloud is registering field 'dragforce', and type 'vector-atom' ...
+cfdemCloud already found field 'dragforce' at position: 5
+Selecting forceModel Archimedes
+ No forceSubModel specified - setting to default forceSubModel ImEx.
+ Selecting forceSubModel ImEx
+ reading switches:
+  looking for verbose ...  not found in dict, using default. verbose = false
+  looking for interpolation ...  not found in dict, using default. interpolation = false
+
+cfdemCloud is registering field 'radius', and type 'scalar-atom' ...
+cfdemCloud already found field 'radius' at position: 0
+cfdemCloud is registering field 'x', and type 'vector-atom' ...
+cfdemCloud already found field 'x' at position: 1
+cfdemCloud is registering field 'v', and type 'vector-atom' ...
+cfdemCloud already found field 'v' at position: 2
+cfdemCloud is registering field 'dragforce', and type 'vector-atom' ...
+cfdemCloud already found field 'dragforce' at position: 5
+Selecting liggghtsCommandModel runLiggghts ,provide dicts, numbered from 0 to n
+solving volume averaged Navier Stokes equations of type A
+
+Starting time loop
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+--> FOAM Warning : 
+    From void Foam::timeControl::read(const Foam::dictionary&)
+    in file db/functionObjects/timeControl/timeControl.C at line 131
+    Reading "system/controlDict/functions/probes" at line 59 to 75
+    Found deprecated 'outputControl'
+    Use 'writeControl' with 'writeInterval'
+    This keyword is 108 months old.
+
+--> FOAM IOWarning :
+    Found [v1612] 'functionObjectLibs' entry instead of 'libs' in dictionary "system/controlDict/functions/probes"
+
+    This keyword is 102 months old.
+
+--> FOAM Warning : 
+    From void Foam::timeControl::read(const Foam::dictionary&)
+    in file db/functionObjects/timeControl/timeControl.C at line 131
+    Reading "system/controlDict/functions/volFlow_inlet" at line 80 to 92
+    Found deprecated 'outputControl'
+    Use 'writeControl' with 'writeInterval'
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+--> FOAM IOWarning :
+    Found [v1612] 'functionObjectLibs' entry instead of 'libs' in dictionary "system/controlDict/functions/volFlow_inlet"
+
+    This keyword is 102 months old.
+
+surfaceFieldValue volFlow_inlet:
+    operation     = sum
+
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+--> FOAM IOWarning :
+    Found [v1612] 'functionObjectLibs' entry instead of 'libs' in dictionary "    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+system/controlDict/functions/volFlow_outlet"
+
+    This keyword is 102 months old.
+
+--> FOAM Warning : 
+    From void Foam::timeControl::read(const Foam::dictionary&)
+    in file db/functionObjects/timeControl/timeControl.C at line 131
+    Reading "system/controlDict/functions/volFlow_outlet" at line 98 to 110
+    Found deprecated 'outputControl'
+    Use 'writeControl' with 'writeInterval'
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+    This keyword is 108 months old.
+
+--> FOAM IOWarning :
+    Found [v1612] 'functionObjectLibs' entry instead of 'libs' in dictionary "system/controlDict/functions/volFlow_wall"
+
+    This keyword is 102 months old.
+
+surfaceFieldValue volFlow_outlet:
+    operation     = sum
+
+
+--> FOAM Warning : 
+    From void Foam::timeControl::read(const Foam::dictionary&)
+    in file db/functionObjects/timeControl/timeControl.C at line 131
+    Reading "system/controlDict/functions/volFlow_wall" at line 116 to 128
+    Found deprecated 'outputControl'
+    Use 'writeControl' with 'writeInterval'
+surfaceFieldValue volFlow_wall:
+    operation     = sum
+
+
+Time = 0.001
+
+Courant Number mean: 0 max: 0
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10000     1000  1.3749826e-05  1.1296911e-06          0.004    0.094361295              0              0              0 
+   10010     1000  1.3774103e-05  1.1296872e-06          0.004    0.094364789              0              0              0 
+   10020     1000  1.3809448e-05  1.1297388e-06          0.004    0.094368367              0              0              0 
+   10030     1000  1.3845736e-05  1.1298416e-06          0.004     0.09437202              0              0              0 
+   10040     1000  1.3817914e-05  1.1297401e-06          0.004    0.094375739              0              0              0 
+   10050     1000  1.3860606e-05  1.1297164e-06          0.004    0.094379505              0              0              0 
+   10060     1000  1.3830624e-05  1.1297174e-06          0.004    0.094383335              0              0              0 
+   10070     1000  1.3815892e-05  1.1297206e-06          0.004    0.094387182              0              0              0 
+   10080     1000  1.3845882e-05  1.1297569e-06          0.004    0.094391084              0              0              0 
+   10090     1000  1.3791288e-05   1.129741e-06          0.004    0.094395038              0              0              0 
+CFD Coupling established at step 10100
+   10100     1000   1.374888e-05  1.1297042e-06          0.004    0.094399011              0              0              0 
+Loop time of 0.00359975 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000114496 (3.18066)
+Neigh time (%) = 0.00174873 (48.5791)
+Comm  time (%) = 0.000280458 (7.79104)
+Outpt time (%) = 0.000231732 (6.43746)
+Other time (%) = 0.00122434 (34.0117)
+
+Nlocal:    250 ave 255 max 248 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+Nghost:    9.5 ave 12 max 6 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+Neighs:    4 ave 5 max 2 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+
+Total # of neighbors = 16
+Ave neighs/atom = 0.016
+Neighbor list builds = 1
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 1, Final residual = 4.69253e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 1, Final residual = 0.00018017, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 1, Final residual = 7.65615e-05, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 5.22188e-07, pressure gradient = 9058.64
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 1, Final residual = 0.082672, No Iterations 25
+time step continuity errors : sum local = 1.54237e-06, global = 1.34683e-06, cumulative = 1.34683e-06
+Pressure gradient source: uncorrected Ubar = 0.0407621, pressure gradient = 9021.72
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0178757, Final residual = 0.00136678, No Iterations 6
+time step continuity errors : sum local = 1.36394e-06, global = 1.34683e-06, cumulative = 2.69366e-06
+Pressure gradient source: uncorrected Ubar = 0.0408113, pressure gradient = 9021.67
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.00138564, Final residual = 9.07406e-07, No Iterations 38
+time step continuity errors : sum local = 1.34684e-06, global = 1.34683e-06, cumulative = 4.04049e-06
+Pressure gradient source: uncorrected Ubar = 0.0408114, pressure gradient = 9021.67
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.13 s  ClockTime = 0 s
+
+Time = 0.002
+
+Courant Number mean: 0.00328082 max: 0.00400252
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10100     1000   1.374888e-05  1.1297042e-06          0.004    0.094399011 -2.8220375e-06  3.1170822e-06 -9.2171428e-05 
+   10110     1000  1.3779977e-05  1.1296988e-06          0.004    0.094403016 -2.8207787e-06  3.1164224e-06 -9.3211182e-05 
+   10120     1000  1.3744323e-05  1.1296054e-06          0.004    0.094407063 -2.8203811e-06  3.1158821e-06 -9.3567339e-05 
+   10130     1000  1.3780614e-05  1.1295135e-06          0.004     0.09441115 -2.8200707e-06  3.1153633e-06  -9.496028e-05 
+   10140     1000  1.3817875e-05  1.1294252e-06          0.004    0.094415318 -2.8195123e-06  3.1148969e-06 -9.6634138e-05 
+   10150     1000  1.3740608e-05  1.1293534e-06          0.004     0.09441956 -2.8187533e-06  3.1144663e-06 -9.7438843e-05 
+   10160     1000  1.3661455e-05  1.1291809e-06          0.004    0.094423791 -2.8172599e-06  3.1138636e-06  -9.662949e-05 
+   10170     1000  1.3705708e-05  1.1290144e-06          0.004    0.094428025 -2.8161272e-06  3.1134699e-06 -9.7631184e-05 
+   10180     1000   1.372309e-05  1.1265079e-06          0.004    0.094432341 -2.8149279e-06  3.1128674e-06  -9.934779e-05 
+   10190     1000  1.3720596e-05  1.1154474e-06          0.004    0.094436708 -2.8147831e-06  3.1120151e-06 -9.9892984e-05 
+CFD Coupling established at step 10200
+   10200     1000  1.3569467e-05  1.1153785e-06          0.004    0.094441102 -2.8144264e-06  3.1108817e-06  -9.963069e-05 
+Loop time of 0.0033358 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.00011157 (3.34462)
+Neigh time (%) = 0.00146113 (43.8014)
+Comm  time (%) = 0.000349708 (10.4835)
+Outpt time (%) = 0.000213682 (6.4057)
+Other time (%) = 0.00119971 (35.9648)
+
+Nlocal:    250 ave 254 max 248 min
+Histogram: 1 2 0 0 0 0 0 0 0 1
+Nghost:    9.25 ave 11 max 6 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+Neighs:    4.25 ave 5 max 3 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+
+Total # of neighbors = 17
+Ave neighs/atom = 0.017
+Neighbor list builds = 1
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.998704, Final residual = 0.000270334, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.336691, Final residual = 0.000177517, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.484548, Final residual = 0.000211603, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 17.9923, pressure gradient = -1821.03
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.989649, Final residual = 0.0939813, No Iterations 3
+time step continuity errors : sum local = 3.95868e-05, global = 1.41649e-06, cumulative = 5.45699e-06
+Pressure gradient source: uncorrected Ubar = 17.9716, pressure gradient = -1792.99
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0468494, Final residual = 0.00455751, No Iterations 11
+time step continuity errors : sum local = 5.29171e-06, global = 1.41649e-06, cumulative = 6.87348e-06
+Pressure gradient source: uncorrected Ubar = 17.9716, pressure gradient = -1792.97
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.00463605, Final residual = 7.46949e-07, No Iterations 41
+time step continuity errors : sum local = 1.4171e-06, global = 1.41649e-06, cumulative = 8.28997e-06
+Pressure gradient source: uncorrected Ubar = 17.9716, pressure gradient = -1792.97
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.16 s  ClockTime = 0 s
+
+Time = 0.003
+
+Courant Number mean: 1.438 max: 1.44192
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10200     1000  1.3569467e-05  1.1153785e-06          0.004    0.094441102    0.030908899  1.5385499e-06 -0.00018184502 
+   10210     1000  1.3622277e-05  1.1153129e-06          0.004     0.09444547    0.030890904  1.5397107e-06 -0.00018453337 
+   10220     1000  1.3674654e-05  1.1152484e-06          0.004    0.094449911    0.030871984  1.5408915e-06 -0.00018885728 
+   10230     1000  1.3680716e-05  1.1151661e-06          0.004    0.094454415    0.030853077  1.5423482e-06 -0.00019197676 
+   10240     1000  1.3782615e-05  1.1149717e-06          0.004    0.094458949    0.030834179  1.5440372e-06 -0.00019544369 
+   10250     1000  1.3889223e-05  1.1149223e-06          0.004    0.094463554    0.030815292  1.5450335e-06 -0.00019952148 
+   10260     1000  1.3960448e-05  1.0837758e-06          0.004     0.09446823    0.030796618  1.3400802e-06 -0.00020326678 
+   10270     1000  1.4038949e-05  1.0834496e-06          0.004     0.09447295    0.030777873  1.2227756e-06 -0.00020625336 
+   10280     1000   1.419056e-05  1.0827126e-06          0.004    0.094477696    0.030758998   1.252147e-06 -0.00020924674 
+   10290     1000  1.4294377e-05   1.082644e-06          0.004    0.094482488    0.030740162  1.2534861e-06 -0.00021240331 
+CFD Coupling established at step 10300
+   10300     1000  1.4416592e-05  1.0825512e-06          0.004    0.094487299    0.030721339  1.2551101e-06 -0.00021478365 
+Loop time of 0.00396872 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000135369 (3.41089)
+Neigh time (%) = 0.00157019 (39.564)
+Comm  time (%) = 0.000356573 (8.98457)
+Outpt time (%) = 0.000258506 (6.51359)
+Other time (%) = 0.00164809 (41.5269)
+
+Nlocal:    250 ave 254 max 248 min
+Histogram: 1 2 0 0 0 0 0 0 0 1
+Nghost:    9.25 ave 11 max 6 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+Neighs:    4.25 ave 5 max 3 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+
+Total # of neighbors = 17
+Ave neighs/atom = 0.017
+Neighbor list builds = 1
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.952405, Final residual = 0.055072, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.314351, Final residual = 0.00404507, No Iterations 2
+DILUPBiCG:  Solving for Uz, Initial residual = 0.339335, Final residual = 0.0139696, No Iterations 2
+Pressure gradient source: uncorrected Ubar = 10.1915, pressure gradient = -2113.75
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.991522, Final residual = 0.0685236, No Iterations 10
+time step continuity errors : sum local = 0.00256889, global = 1.08302e-06, cumulative = 9.37299e-06
+Pressure gradient source: uncorrected Ubar = 10.1146, pressure gradient = -1984.88
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.199499, Final residual = 0.0168354, No Iterations 6
+time step continuity errors : sum local = 0.00136121, global = 1.08302e-06, cumulative = 1.0456e-05
+Pressure gradient source: uncorrected Ubar = 10.1533, pressure gradient = -2049.8
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0534207, Final residual = 8.82423e-07, No Iterations 45
+time step continuity errors : sum local = 1.15553e-06, global = 1.08302e-06, cumulative = 1.1539e-05
+Pressure gradient source: uncorrected Ubar = 10.1593, pressure gradient = -2059.84
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.19 s  ClockTime = 0 s
+
+Time = 0.004
+
+Courant Number mean: 1.32376 max: 1.51631
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10300     1000  1.4416592e-05  1.0825512e-06          0.004    0.094487299    0.041204841  1.5970659e-06 -0.00022784966 
+   10310     1000  1.4685943e-05  1.0824885e-06          0.004    0.094492139    0.041177605  1.5983794e-06 -0.00023165464 
+   10320     1000  1.4913758e-05   1.082779e-06          0.004     0.09449703     0.04114896  1.6001265e-06 -0.00023511594 
+   10330     1000  1.5140269e-05  1.0825247e-06          0.004    0.094501908    0.041120336  1.6010528e-06  -0.0002368893 
+   10340     1000  1.5425051e-05  1.0823061e-06          0.004    0.094506788    0.041091729  1.6015268e-06 -0.00024018127 
+   10350     1000   1.572161e-05  1.0816205e-06          0.004    0.094511693    0.041063167  1.5794292e-06 -0.00024332226 
+   10360     1000  1.6112705e-05  1.0856891e-06          0.004    0.094516631    0.041034844  1.5336254e-06 -0.00024713595 
+   10370     1000  1.6433833e-05  1.0897938e-06          0.004    0.094521602     0.04100642  1.5130151e-06 -0.00024982082 
+   10380     1000  1.6829558e-05   1.089423e-06          0.004    0.094526553    0.040977877  1.5191634e-06 -0.00025190406 
+   10390     1000  1.7252317e-05  1.0886747e-06          0.004    0.094531531    0.040949381  1.5213384e-06  -0.0002554245 
+CFD Coupling established at step 10400
+   10400     1000  1.7718116e-05  1.0884945e-06          0.004    0.094536536    0.040920897  1.5231909e-06 -0.00025856478 
+Loop time of 0.00495656 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000118693 (2.39467)
+Neigh time (%) = 0.00261546 (52.7677)
+Comm  time (%) = 0.000372669 (7.5187)
+Outpt time (%) = 0.000248342 (5.01037)
+Other time (%) = 0.00160139 (32.3085)
+
+Nlocal:    250 ave 254 max 248 min
+Histogram: 1 2 0 0 0 0 0 0 0 1
+Nghost:    9.5 ave 12 max 6 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Neighs:    5 ave 7 max 3 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 20
+Ave neighs/atom = 0.02
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.752865, Final residual = 0.0200452, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.358215, Final residual = 0.0244104, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.331736, Final residual = 0.024692, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 8.37205, pressure gradient = 939.537
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.65197, Final residual = 0.0624923, No Iterations 10
+time step continuity errors : sum local = 0.00492872, global = 1.36836e-06, cumulative = 1.29074e-05
+Pressure gradient source: uncorrected Ubar = 8.71683, pressure gradient = 304.313
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.396443, Final residual = 0.0360955, No Iterations 7
+time step continuity errors : sum local = 0.00220184, global = 1.36836e-06, cumulative = 1.42758e-05
+Pressure gradient source: uncorrected Ubar = 8.76104, pressure gradient = 222.861
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.131602, Final residual = 9.57934e-07, No Iterations 46
+time step continuity errors : sum local = 1.41078e-06, global = 1.36836e-06, cumulative = 1.56441e-05
+Pressure gradient source: uncorrected Ubar = 8.77672, pressure gradient = 193.959
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.22 s  ClockTime = 0 s
+
+Time = 0.005
+
+Courant Number mean: 0.923821 max: 1.03721
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10400     1000  1.7718116e-05  1.0884945e-06          0.004    0.094536536    0.034876549 -2.0996804e-05 -0.00022010259 
+   10410     1000  1.8187267e-05  1.0883595e-06          0.004    0.094541584    0.034854979 -2.0978698e-05 -0.00022371742 
+   10420     1000  1.8645173e-05   1.088304e-06          0.004    0.094546687    0.034832282 -2.0960686e-05 -0.00022734591 
+   10430     1000  1.9073869e-05  1.0882637e-06          0.004    0.094551811    0.034809607 -2.0942563e-05 -0.00022958975 
+   10440     1000  1.9539929e-05  1.0882178e-06          0.004    0.094556943     0.03478695 -2.0924553e-05 -0.00023239069 
+   10450     1000  2.0098663e-05  1.0881576e-06          0.004    0.094562101    0.034764294 -2.0906431e-05 -0.00023590591 
+   10460     1000  2.0612691e-05  1.0881272e-06          0.004    0.094567317    0.034741662 -2.0886439e-05 -0.00023938104 
+   10470     1000  2.1059006e-05  1.0881509e-06          0.004     0.09457253    0.034719083 -2.0868348e-05 -0.00024055107 
+   10480     1000  2.1589895e-05  1.0723925e-06          0.004    0.094577703    0.034696466 -2.0850312e-05 -0.00024241904 
+   10490     1000  2.2191177e-05  1.0602946e-06          0.004    0.094582892    0.034673696 -2.0816682e-05 -0.00024547231 
+CFD Coupling established at step 10500
+   10500     1000  2.2789039e-05   1.058085e-06          0.004    0.094588114    0.034651088 -2.0795819e-05 -0.00024859181 
+Loop time of 0.00586298 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000116756 (1.99141)
+Neigh time (%) = 0.00391465 (66.7689)
+Comm  time (%) = 0.000249644 (4.25796)
+Outpt time (%) = 0.000251858 (4.29573)
+Other time (%) = 0.00133008 (22.686)
+
+Nlocal:    250 ave 254 max 248 min
+Histogram: 1 2 0 0 0 0 0 0 0 1
+Nghost:    9.5 ave 12 max 6 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Neighs:    5.25 ave 7 max 3 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 21
+Ave neighs/atom = 0.021
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.692474, Final residual = 0.0413308, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.715542, Final residual = 0.0373399, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.633008, Final residual = 0.0187006, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 9.9578, pressure gradient = 270.01
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.659161, Final residual = 0.0491505, No Iterations 11
+time step continuity errors : sum local = 0.00161463, global = 1.41773e-06, cumulative = 1.70619e-05
+Pressure gradient source: uncorrected Ubar = 9.96448, pressure gradient = 257.985
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.382599, Final residual = 0.0271387, No Iterations 11
+time step continuity errors : sum local = 0.000431139, global = 1.41773e-06, cumulative = 1.84796e-05
+Pressure gradient source: uncorrected Ubar = 9.96119, pressure gradient = 263.907
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.080073, Final residual = 7.57106e-07, No Iterations 46
+time step continuity errors : sum local = 1.42851e-06, global = 1.41773e-06, cumulative = 1.98973e-05
+Pressure gradient source: uncorrected Ubar = 9.96148, pressure gradient = 263.376
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.25 s  ClockTime = 0 s
+
+Time = 0.006
+
+Courant Number mean: 0.79952 max: 0.876067
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10500     1000  2.2789039e-05   1.058085e-06          0.004    0.094588114    0.032919101 -1.0280977e-05 -0.00023911042 
+   10510     1000  2.3405487e-05  1.0575916e-06          0.004    0.094593356    0.032899142 -1.0270928e-05 -0.00024189484 
+   10520     1000  2.3963581e-05  1.0576891e-06          0.004    0.094598602     0.03287817 -1.0261978e-05 -0.00024368741 
+   10530     1000   2.460177e-05  1.0577324e-06          0.004    0.094603871    0.032857198 -1.0253229e-05 -0.00024735593 
+   10540     1000  2.5221783e-05  1.0577921e-06          0.004     0.09460916    0.032836258 -1.0244493e-05  -0.0002493352 
+   10550     1000  2.5817043e-05  1.0578609e-06          0.004    0.094614455    0.032815331 -1.0235751e-05 -0.00025164455 
+   10560     1000  2.6382933e-05  1.0579929e-06          0.004    0.094619728    0.032794446 -1.0226928e-05 -0.00025275979 
+   10570     1000  2.7145536e-05  1.0578512e-06          0.004    0.094624968    0.032773502 -1.0218167e-05 -0.00025529788 
+   10580     1000  2.7844393e-05  1.0579187e-06          0.004    0.094630259    0.032752606 -1.0209575e-05 -0.00025859649 
+   10590     1000  2.8610287e-05  1.0579052e-06          0.004    0.094635599     0.03273171 -1.0200712e-05 -0.00026241974 
+CFD Coupling established at step 10600
+   10600     1000  2.9397692e-05   1.057547e-06          0.004    0.094640985    0.032710836 -1.0197485e-05 -0.00026547127 
+Loop time of 0.00549228 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000114561 (2.08586)
+Neigh time (%) = 0.00365246 (66.5016)
+Comm  time (%) = 0.000210678 (3.83589)
+Outpt time (%) = 0.000213788 (3.89252)
+Other time (%) = 0.0013008 (23.6841)
+
+Nlocal:    250 ave 254 max 248 min
+Histogram: 1 2 0 0 0 0 0 0 0 1
+Nghost:    9 ave 11 max 5 min
+Histogram: 1 0 0 0 0 0 1 0 0 2
+Neighs:    5.5 ave 7 max 3 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+
+Total # of neighbors = 22
+Ave neighs/atom = 0.022
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.518304, Final residual = 0.00544825, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.377605, Final residual = 0.0187903, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.362278, Final residual = 0.0135308, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 10.2, pressure gradient = -94.2548
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.422008, Final residual = 0.0277682, No Iterations 5
+time step continuity errors : sum local = 0.000327406, global = 1.46536e-06, cumulative = 2.13627e-05
+Pressure gradient source: uncorrected Ubar = 10.1587, pressure gradient = -20.3863
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.127489, Final residual = 0.0106779, No Iterations 9
+time step continuity errors : sum local = 9.91363e-05, global = 1.46536e-06, cumulative = 2.2828e-05
+Pressure gradient source: uncorrected Ubar = 10.1557, pressure gradient = -15.1315
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0227735, Final residual = 4.73724e-07, No Iterations 44
+time step continuity errors : sum local = 1.46967e-06, global = 1.46536e-06, cumulative = 2.42934e-05
+Pressure gradient source: uncorrected Ubar = 10.1554, pressure gradient = -14.6273
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.27 s  ClockTime = 0 s
+
+Time = 0.007
+
+Courant Number mean: 0.780323 max: 0.830786
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10600     1000  2.9397692e-05   1.057547e-06          0.004    0.094640985    0.032592316 -3.0793481e-06 -0.00025976375 
+   10610     1000  3.0162427e-05  1.0576113e-06          0.004     0.09464642    0.032572575 -3.0815669e-06 -0.00026286257 
+   10620     1000  3.0960495e-05  1.0488066e-06          0.004    0.094651899    0.032551732 -3.1622736e-06 -0.00026642961 
+   10630     1000  3.1716998e-05   1.046088e-06          0.004    0.094657384    0.032530956 -3.2119984e-06 -0.00026775604 
+   10640     1000  3.2586858e-05  1.0444339e-06          0.004    0.094662879    0.032510178 -3.2135867e-06 -0.00027142029 
+   10650     1000  3.3435554e-05  1.0410002e-06          0.004    0.094668407    0.032489475 -3.2531344e-06 -0.00027375082 
+   10660     1000  3.4357912e-05   1.040118e-06          0.004    0.094673969    0.032468731  -3.278212e-06 -0.00027747822 
+   10670     1000  3.5225588e-05  1.0406875e-06          0.004    0.094679585    0.032448063 -3.2786033e-06 -0.00028039688 
+   10680     1000  3.6150125e-05  1.0413472e-06          0.004    0.094685204    0.032427359 -3.2750126e-06 -0.00028270387 
+   10690     1000  3.7130353e-05   1.041089e-06          0.004     0.09469087    0.032406639 -3.2700918e-06 -0.00028677768 
+CFD Coupling established at step 10700
+   10700     1000   3.812485e-05  1.0410952e-06          0.004    0.094696617    0.032385939 -3.2653097e-06 -0.00029095621 
+Loop time of 0.00440487 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000113935 (2.58655)
+Neigh time (%) = 0.00241527 (54.8317)
+Comm  time (%) = 0.000388959 (8.83019)
+Outpt time (%) = 0.000207529 (4.71135)
+Other time (%) = 0.00127918 (29.0402)
+
+Nlocal:    250 ave 253 max 248 min
+Histogram: 1 0 1 0 1 0 0 0 0 1
+Nghost:    9.5 ave 12 max 5 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:    5 ave 7 max 2 min
+Histogram: 1 0 0 0 1 0 0 0 0 2
+
+Total # of neighbors = 20
+Ave neighs/atom = 0.02
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.200931, Final residual = 0.010011, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.290196, Final residual = 0.0100343, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.303825, Final residual = 0.00796935, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 10.0022, pressure gradient = -18.598
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.383246, Final residual = 0.0274043, No Iterations 4
+time step continuity errors : sum local = 0.000207774, global = 1.51955e-06, cumulative = 2.58129e-05
+Pressure gradient source: uncorrected Ubar = 10.0019, pressure gradient = -17.9226
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0979706, Final residual = 0.00876789, No Iterations 7
+time step continuity errors : sum local = 5.24126e-05, global = 1.51955e-06, cumulative = 2.73325e-05
+Pressure gradient source: uncorrected Ubar = 10.0016, pressure gradient = -17.4498
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.016766, Final residual = 7.45987e-07, No Iterations 43
+time step continuity errors : sum local = 1.52395e-06, global = 1.51955e-06, cumulative = 2.8852e-05
+Pressure gradient source: uncorrected Ubar = 10.0015, pressure gradient = -17.3623
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.3 s  ClockTime = 0 s
+
+Time = 0.008
+
+Courant Number mean: 0.7803 max: 0.811776
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10700     1000   3.812485e-05  1.0410952e-06          0.004    0.094696617    0.031663407 -9.0804084e-08 -0.00028361304 
+   10710     1000  3.9015441e-05  1.0415354e-06          0.004    0.094702414    0.031644384 -8.8458478e-08 -0.00028609702 
+   10720     1000  4.0022309e-05  1.0414401e-06          0.004    0.094708229    0.031624307 -8.6006491e-08 -0.00028927585 
+   10730     1000  4.0979802e-05   1.041855e-06          0.004    0.094714097     0.03160431 -8.3622294e-08 -0.00029231955 
+   10740     1000  4.2036639e-05  1.0417045e-06          0.004    0.094720001    0.031584258 -8.1352079e-08 -0.00029589058 
+   10750     1000  4.3099501e-05   1.041761e-06          0.004    0.094725967    0.031564239 -7.9097265e-08 -0.00029952352 
+   10760     1000  4.4089255e-05  1.0414757e-06          0.004    0.094731984    0.031544269 -7.6552268e-08 -0.00030239853 
+   10770     1000  4.5097263e-05  1.0232415e-06          0.004    0.094737989    0.031524203  9.9661083e-08 -0.00030375929 
+   10780     1000  4.6100516e-05  1.0268882e-06          0.004    0.094743966    0.031504327  5.6494264e-08  -0.0003051537 
+   10790     1000  4.7151096e-05  1.0272853e-06          0.004    0.094749961    0.031484407  5.9645244e-08 -0.00030822522 
+CFD Coupling established at step 10800
+   10800     1000   4.819872e-05  1.0274732e-06          0.004    0.094755936    0.031464535  6.8094667e-08 -0.00030901717 
+Loop time of 0.00521025 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000120162 (2.30626)
+Neigh time (%) = 0.00288347 (55.3423)
+Comm  time (%) = 0.000353384 (6.78248)
+Outpt time (%) = 0.000242591 (4.65604)
+Other time (%) = 0.00161064 (30.913)
+
+Nlocal:    250 ave 253 max 247 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    9.75 ave 12 max 6 min
+Histogram: 1 0 0 0 0 1 0 0 0 2
+Neighs:    5.25 ave 8 max 2 min
+Histogram: 1 0 0 1 0 0 0 0 1 1
+
+Total # of neighbors = 21
+Ave neighs/atom = 0.021
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.165257, Final residual = 0.0062116, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.262241, Final residual = 0.00690902, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.279045, Final residual = 0.00529405, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 9.97316, pressure gradient = 29.8968
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.368752, Final residual = 0.0265342, No Iterations 3
+time step continuity errors : sum local = 0.00013298, global = 1.55278e-06, cumulative = 3.04048e-05
+Pressure gradient source: uncorrected Ubar = 9.97885, pressure gradient = 19.8838
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0877819, Final residual = 0.00756973, No Iterations 9
+time step continuity errors : sum local = 3.18445e-05, global = 1.55278e-06, cumulative = 3.19576e-05
+Pressure gradient source: uncorrected Ubar = 9.97899, pressure gradient = 19.6267
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0155067, Final residual = 5.92562e-07, No Iterations 43
+time step continuity errors : sum local = 1.55519e-06, global = 1.55278e-06, cumulative = 3.35104e-05
+Pressure gradient source: uncorrected Ubar = 9.979, pressure gradient = 19.6146
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.33 s  ClockTime = 0 s
+
+Time = 0.009
+
+Courant Number mean: 0.784407 max: 0.807576
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:14 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10800     1000   4.819872e-05  1.0274732e-06          0.004    0.094755936    0.030543895   1.683606e-07 -0.00030010572 
+   10810     1000  4.9325881e-05  1.0230418e-06          0.004    0.094761936    0.030525767  2.4068229e-08 -0.00030379947 
+   10820     1000  5.0488048e-05  1.0223978e-06          0.004    0.094768009    0.030506587  3.5489132e-08 -0.00030767677 
+   10830     1000  5.1664673e-05  1.0218588e-06          0.004     0.09477416    0.030487427  4.6497161e-08 -0.00031168035 
+   10840     1000  5.2847026e-05  1.0222164e-06          0.004    0.094780379    0.030468317  4.6737769e-08 -0.00031529434 
+   10850     1000  5.3901675e-05  1.0179175e-06          0.004    0.094786624    0.030449351  4.5161291e-08 -0.00031683833 
+   10860     1000  5.5004759e-05  1.0185233e-06          0.004    0.094792828    0.030430329  4.6835408e-08 -0.00031788353 
+   10870     1000   5.620548e-05  1.0186246e-06          0.004    0.094798997    0.030411274  3.9284735e-08 -0.00031941841 
+   10880     1000  5.7455396e-05  1.0185374e-06          0.004      0.0948052    0.030392179    3.36062e-08 -0.00032315578 
+   10890     1000  5.8654659e-05  1.0194291e-06          0.004    0.094811455    0.030373164  3.1910131e-08 -0.00032585138 
+CFD Coupling established at step 10900
+   10900     1000  5.9881662e-05  1.0200603e-06          0.004    0.094817748    0.030354149  3.4205726e-08 -0.00032906947 
+Loop time of 0.00609113 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:14 2025
+
+
+Pair  time (%) = 0.000143958 (2.3634)
+Neigh time (%) = 0.00422679 (69.3926)
+Comm  time (%) = 0.000260295 (4.27335)
+Outpt time (%) = 0.000303586 (4.98406)
+Other time (%) = 0.0011565 (18.9866)
+
+Nlocal:    250 ave 255 max 247 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Nghost:    9.75 ave 14 max 6 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+Neighs:    4.75 ave 7 max 2 min
+Histogram: 1 0 1 0 0 0 0 0 0 2
+
+Total # of neighbors = 19
+Ave neighs/atom = 0.019
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0989039, Final residual = 0.00237592, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.261499, Final residual = 0.0113412, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.263919, Final residual = 0.00596289, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 10.0002, pressure gradient = 19.2893
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.379424, Final residual = 0.0276563, No Iterations 3
+time step continuity errors : sum local = 9.82258e-05, global = 1.60272e-06, cumulative = 3.51131e-05
+Pressure gradient source: uncorrected Ubar = 10.0003, pressure gradient = 19.0668
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0916206, Final residual = 0.00707379, No Iterations 5
+time step continuity errors : sum local = 2.21969e-05, global = 1.60272e-06, cumulative = 3.67158e-05
+Pressure gradient source: uncorrected Ubar = 10.0002, pressure gradient = 19.3438
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0131699, Final residual = 9.61187e-07, No Iterations 42
+time step continuity errors : sum local = 1.60553e-06, global = 1.60272e-06, cumulative = 3.83185e-05
+Pressure gradient source: uncorrected Ubar = 10.0001, pressure gradient = 19.3827
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.36 s  ClockTime = 1 s
+
+Time = 0.01
+
+Courant Number mean: 0.789795 max: 0.810732
+
+ Coupling...
+Starting up LIGGGHTS
+Executing command: 'run 100    '
+run 100    
+Setting up run at Mon Aug 25 21:16:15 2025
+
+Memory usage per processor = 15.9928 Mbytes
+    Step    Atoms         KinEng              1         Volume       centerOf       dragtota       dragtota       dragtota 
+   10900     1000  5.9881662e-05  1.0200603e-06          0.004    0.094817748    0.029550763 -1.1684392e-06 -0.00031830105 
+   10910     1000  6.1156801e-05  1.0198822e-06          0.004    0.094824072    0.029533288 -1.1658587e-06 -0.00032107401 
+   10920     1000  6.2205634e-05   1.022273e-06          0.004    0.094830419    0.029515087 -1.1638249e-06 -0.00032227416 
+   10930     1000  6.3463426e-05  1.0211781e-06          0.004    0.094836688    0.029496744 -1.1692753e-06 -0.00032325415 
+   10940     1000   6.465312e-05  1.0247646e-06          0.004    0.094842956    0.029478541 -1.1742706e-06 -0.00032495307 
+   10950     1000  6.5933478e-05  1.0246683e-06          0.004    0.094849181    0.029460241 -1.1741715e-06 -0.00032625652 
+   10960     1000  6.7276622e-05   1.024247e-06          0.004    0.094855444    0.029441883 -1.1738399e-06 -0.00033005892 
+   10970     1000  6.8643794e-05  1.0240408e-06          0.004    0.094861781     0.02942355 -1.1718357e-06 -0.00033390033 
+   10980     1000  6.9963751e-05  1.0252721e-06          0.004    0.094868185    0.029405321 -1.1716837e-06 -0.00033709903 
+   10990     1000  7.1355422e-05   1.024922e-06          0.004    0.094874614    0.029386988 -1.1852831e-06 -0.00033984686 
+CFD Coupling established at step 11000
+   11000     1000  7.2656563e-05   1.025229e-06          0.004    0.094881096    0.029368837 -1.1937477e-06  -0.0003426257 
+Loop time of 0.00443722 on 4 procs for 100 steps with 1000 atoms, finish time Mon Aug 25 21:16:15 2025
+
+
+Pair  time (%) = 0.000113593 (2.56002)
+Neigh time (%) = 0.00249836 (56.3046)
+Comm  time (%) = 0.000264771 (5.96706)
+Outpt time (%) = 0.00021507 (4.84696)
+Other time (%) = 0.00134542 (30.3214)
+
+Nlocal:    250 ave 255 max 247 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Nghost:    10.5 ave 14 max 7 min
+Histogram: 1 0 0 0 1 1 0 0 0 1
+Neighs:    4.75 ave 7 max 2 min
+Histogram: 1 0 1 0 0 0 0 0 0 2
+
+Total # of neighbors = 19
+Ave neighs/atom = 0.019
+Neighbor list builds = 2
+Dangerous builds = 0
+LIGGGHTS finished
+get field with name 'radius' at position: 0
+get field with name 'x' at position: 1
+get field with name 'v' at position: 2
+
+ timeStepFraction() = 1
+Zeroizing field with name 'Ksl' at position: 3 with type scalar-atom
+Zeroizing field with name 'uf' at position: 4 with type vector-atom
+Zeroizing field with name 'dragforce' at position: 5 with type vector-atom
+giveData field with name 'Ksl' at position: 3
+giveData field with name 'uf' at position: 4
+giveData field with name 'dragforce' at position: 5
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0746082, Final residual = 0.00230368, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.273454, Final residual = 0.0181942, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.265063, Final residual = 0.010528, No Iterations 1
+Pressure gradient source: uncorrected Ubar = 10.0036, pressure gradient = 13.0691
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.351699, Final residual = 0.0228388, No Iterations 3
+time step continuity errors : sum local = 5.87053e-05, global = 1.62072e-06, cumulative = 3.99393e-05
+Pressure gradient source: uncorrected Ubar = 10.0031, pressure gradient = 14.0299
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.0822729, Final residual = 0.0065446, No Iterations 9
+time step continuity errors : sum local = 1.52256e-05, global = 1.62072e-06, cumulative = 4.156e-05
+Pressure gradient source: uncorrected Ubar = 10.003, pressure gradient = 14.2302
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+DICPCG:  Solving for p, Initial residual = 0.014475, Final residual = 6.81892e-07, No Iterations 43
+time step continuity errors : sum local = 1.62219e-06, global = 1.62072e-06, cumulative = 4.31807e-05
+Pressure gradient source: uncorrected Ubar = 10.003, pressure gradient = 14.2303
+--> FOAM Warning : Pressure gradient force is neglected in this model!!
+ExecutionTime = 0.39 s  ClockTime = 1 s
+
+End
+
+cfdemCloud destroys UserCFDEM data: radius
+cfdemCloud destroys UserCFDEM data: x
+cfdemCloud destroys UserCFDEM data: v
+cfdemCloud destroys UserCFDEM data: Ksl
+cfdemCloud destroys UserCFDEM data: uf
+cfdemCloud destroys UserCFDEM data: dragforce
+Finalising parallel run
