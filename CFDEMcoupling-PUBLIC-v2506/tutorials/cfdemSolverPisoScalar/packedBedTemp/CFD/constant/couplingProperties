@@ -1,0 +1,131 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.4                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          couplingProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//===========================================================================//
+// sub-models & settings
+
+modelType B; // A or B
+
+couplingInterval 500;
+
+voidFractionModel divided;
+
+locateModel engine;
+
+meshMotionModel noMeshMotion;
+
+IOModel basicIO;
+
+probeModel off;
+
+dataExchangeModel twoWayMPI;
+
+averagingModel dense;//dilute;//
+
+clockModel off;//standardClock;//
+
+smoothingModel off;
+
+forceModels
+(
+    KochHillDrag
+    LaEuScalarTemp
+    Archimedes
+);
+
+momCoupleModels
+(
+    implicitCouple
+);
+
+//turbulenceModelType RASProperties;//LESProperties;//OFversion24x
+turbulenceModelType turbulenceProperties;//OFversion30x
+
+//===========================================================================//
+// sub-model properties
+
+LaEuScalarTempProps
+{
+    tempFieldName "T";
+    partTempName "Temp";
+    partHeatFluxName "convectiveHeatFlux";
+    lambda 0.0256;
+    Cp 1007;
+}
+
+implicitCoupleProps
+{
+    //KslLimit 0;  // source switched off!!!
+}
+
+KochHillDragProps
+{
+}
+
+DiFeliceDragProps
+{
+    //verbose true;
+}
+
+ArchimedesProps
+{
+}
+gradPForceProps
+{
+    //interpolation true;
+}
+
+viscForceProps
+{
+    interpolation true;
+}
+
+oneWayVTKProps
+{
+    couplingFilename "vtk_out%4.4d.vtk";
+    maxNumberOfParticles 30000;
+}
+
+twoWayMPIProps
+{
+    maxNumberOfParticles 10000;
+    liggghtsPath "../DEM/in.liggghts_run";
+}
+
+centreProps
+{
+}
+
+dividedProps
+{
+    alphaMin 0.4;
+}
+
+engineProps
+{
+    treeSearch true;
+}
+
+// ************************************************************************* //
