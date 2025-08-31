@@ -36,19 +36,11 @@ Description
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
-
+#include "fvOptions.H"
 #include "OFversion.H"
-#if defined(version30)
-    #include "turbulentTransportModel.H"
-    #include "pisoControl.H"
-#else
-    #include "turbulenceModel.H"
-#endif
-#if defined(versionv1606plus) || defined(version40)
-    #include "fvOptions.H"
-#else
-    #include "fvIOoptionList.H"
-#endif
+#include "turbulentTransportModel.H"
+#include "pisoControl.H"
+#include "fvOptions.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
 
 #include "declareCFDEMcloud.H"
@@ -65,16 +57,14 @@ int main(int argc, char *argv[])
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #if defined(version30)
-        pisoControl piso(mesh);
-        #include "createTimeControls.H"
-    #endif
+    #include "createTimeControls.H"
+    pisoControl piso(mesh);
     #include "createFields.H"
     #include "createFvOptions.H"
     #include "initContinuityErrs.H"
 
     // create cfdemCloud
-    #include "readGravitationalAcceleration.H"
+    #include "readGravitationalAccleration_new.H"
     #include "checkImCoupleM.H"
     #include "constructCFDEMcloud.H"
     #include "checkModelType.H"
@@ -84,32 +74,24 @@ int main(int argc, char *argv[])
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
-        #if defined(version30)
-            #include "readTimeControls.H"
+        #include "readTimeControls.H"
             #include "CourantNo.H"
             #include "setDeltaT.H"
-        #else
-            #include "readPISOControls.H"
-            #include "CourantNo.H"
-        #endif
-
         // do particle stuff
         particleCloud.clockM().start(1,"Global");
         particleCloud.clockM().start(2,"Coupling");
         bool hasEvolved = particleCloud.evolve(voidfraction,Us,U);
-
+Info << "I am here!!!kjnfjrhdbgfjhbfdjb!" << endl;
         if(hasEvolved && particleCloud.solveFlow())
         {
             particleCloud.smoothingM().smoothenAbsolutField(particleCloud.forceM(0).impParticleForces());
         }
-
+        Info << "I am here!!121!!" << endl;
         Ksl = particleCloud.momCoupleM(particleCloud.registryM().getProperty("implicitCouple_index")).impMomSource();
         Ksl.correctBoundaryConditions();
 
-        //Force Checks
         #include "forceCheckIm.H"
-
+        #include "solverDebugInfo.H"
         surfaceScalarField voidfractionf = fvc::interpolate(voidfraction);
         phi = voidfractionf*phiByVoidfraction;
 
@@ -121,6 +103,7 @@ int main(int argc, char *argv[])
         {
             // Pressure-velocity PISO corrector
             {
+
                 // Momentum predictor
                 fvVectorMatrix UEqn
                 (
@@ -133,14 +116,10 @@ int main(int argc, char *argv[])
                   + fvOptions(U)
                 );
 
+
                 UEqn.relax();
                 fvOptions.constrain(UEqn);
-
-                #if defined(version30)
-                    if (piso.momentumPredictor())
-                #else
-                    if (momentumPredictor)
-                #endif
+                if (piso.momentumPredictor())
                 {
                     if (modelType=="B" || modelType=="Bfull")
                         solve(UEqn == - fvc::grad(p) + Ksl/rho*Us);
@@ -151,11 +130,8 @@ int main(int argc, char *argv[])
                 }
 
                 // --- PISO loop
-                #if defined(version30)
-                    while (piso.correct())
-                #else
-                    for (int corr=0; corr<nCorr; corr++)
-                #endif
+                
+                while (piso.correct())
                 {
                     volScalarField rUA = 1.0/UEqn.A();
 
@@ -183,11 +159,7 @@ int main(int argc, char *argv[])
 
 
                     // Non-orthogonal pressure corrector loop
-                    #if defined(version30)
-                        while (piso.correctNonOrthogonal())
-                    #else
-                        for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
-                    #endif
+  		    while (piso.correctNonOrthogonal())
                     {
                         // Pressure corrector
                         fvScalarMatrix pEqn
@@ -195,28 +167,12 @@ int main(int argc, char *argv[])
                             fvm::laplacian(rUAvoidfraction, p) == fvc::div(voidfractionf*phi) + particleCloud.ddtVoidfraction()
                         );
                         pEqn.setReference(pRefCell, pRefValue);
-
-                        #if defined(version30)
-                            pEqn.solve(mesh.solver(p.select(piso.finalInnerIter())));
+			pEqn.solve(mesh.solver(p.select(piso.finalInnerIter())));
                             if (piso.finalNonOrthogonalIter())
                             {
                                 phiByVoidfraction = phi - pEqn.flux()/voidfractionf;
                             }
-                        #else
-                            if( corr == nCorr-1 && nonOrth == nNonOrthCorr )
-                                #if defined(versionExt32)
-                                    pEqn.solve(mesh.solutionDict().solver("pFinal"));
-                                #else
-                                    pEqn.solve(mesh.solver("pFinal"));
-                                #endif
-                            else
-                                pEqn.solve();
-
-                            if (nonOrth == nNonOrthCorr)
-                            {
-                                phiByVoidfraction = phi - pEqn.flux()/voidfractionf;
-                            }
-                        #endif
+                     
 
                     } // end non-orthogonal corrector loop
 

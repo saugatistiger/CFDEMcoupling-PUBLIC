@@ -140,7 +140,7 @@ void phaseChangeModel::update(const volScalarField&      voidfraction,   //this 
 #if defined(version40) || defined(versionv1612plus)
     fromField.mSource()    -= (1-alphaImExSplit_) * tempF * fromField.m()
 #else
-    fromField.mSource().internalField()     -= (1-alphaImExSplit_) * tempF.internalField()  * fromField.m()
+    fromField.mSource().primitiveFieldRef()     -= (1-alphaImExSplit_) * tempF.primitiveFieldRef()  * fromField.m()
 #endif
                                               / tEvap_.value()  //characteristic evaporation time
                                             * (   
@@ -152,7 +152,7 @@ void phaseChangeModel::update(const volScalarField&      voidfraction,   //this 
 #if defined(version40) || defined(versionv1612plus)
     fromField.mSourceKImpl() -= alphaImExSplit_ * tempF
 #else
-    fromField.mSourceKImpl().internalField()  -= alphaImExSplit_ * tempF.internalField() 
+    fromField.mSourceKImpl().primitiveFieldRef()  -= alphaImExSplit_ * tempF.primitiveFieldRef() 
 #endif
                                               / tEvap_.value()  //characteristic evaporation time
                                             * (   
@@ -171,8 +171,8 @@ void phaseChangeModel::update(const volScalarField&      voidfraction,   //this 
         toField.mSource()     += tempF * mSaturation_;
         toField.mSourceKImpl()-= tempF * toField.rhoCarrier();
 #else
-        toField.mSource().internalField()       += tempF.internalField()   * mSaturation_;
-        toField.mSourceKImpl().internalField()  -= tempF.internalField()   * toField.rhoCarrier();
+        toField.mSource().primitiveFieldRef()       += tempF.primitiveFieldRef()   * mSaturation_;
+        toField.mSourceKImpl().primitiveFieldRef()  -= tempF.primitiveFieldRef()   * toField.rhoCarrier();
 #endif
 
 
@@ -180,7 +180,7 @@ void phaseChangeModel::update(const volScalarField&      voidfraction,   //this 
 #if defined(version40) || defined(versionv1612plus)
     mSource_  = tempF 
 #else
-    mSource_.internalField()  = tempF   .internalField()
+    mSource_.primitiveFieldRef()  = tempF   .primitiveFieldRef()
 #endif
                               * (   
                                     mSaturation_
@@ -203,7 +203,7 @@ void phaseChangeModel::setEnthalpySource(const eulerianScalarField& Temperature)
                                                - Temperature.m() * (cpFromField_ - cpToField_)
                                              );
 #else
-       Temperature.mSource().internalField() -= mSource_.internalField()
+       Temperature.mSource().primitiveFieldRef() -= mSource_.primitiveFieldRef()
                                            * (   deltaHEvap_.value() 
                                                - Temperature.m().internalField() * (cpFromField_ - cpToField_)
                                              );

@@ -58,7 +58,7 @@ autoPtr<probeModel> probeModel::New
          << probeModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(probeModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

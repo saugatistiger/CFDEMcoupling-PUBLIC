@@ -15,7 +15,7 @@
             #ifdef versionv1612plus
                 p.boundaryFieldRef(),
             #else
-                p.boundaryField(),
+                p.boundaryFieldRef(),
             #endif
             (
                 phi.boundaryField()
@@ -29,7 +29,7 @@
             #ifdef versionv1612plus
                 p.boundaryFieldRef(),
             #else
-                p.boundaryField(),
+                p.boundaryFieldRef(),
             #endif
             (
                 phi.boundaryField()

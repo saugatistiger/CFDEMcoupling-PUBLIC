@@ -153,7 +153,7 @@ eulerianScalarField::~eulerianScalarField()
 // * * * * * * * * * * * * * * * * Member Fct  * * * * * * * * * * * * * * * //
 
 // ************************************************************
-void eulerianScalarField::update(surfaceScalarField phi, volScalarField voidfraction, volScalarField nuEff, scalar Sc, bool limitDiffusion) const 
+void eulerianScalarField::update(surfaceScalarField phi, volScalarField voidfraction, volScalarField nuEff, scalar Sc, bool limitDiffusion) 
 {
     scalar oneByCpVolumetric = 1./(cpVolumetric_+SMALL);
     //Normalize source in case we have a temperature field
@@ -167,14 +167,9 @@ void eulerianScalarField::update(surfaceScalarField phi, volScalarField voidfrac
         else
         {
             const volScalarField& cpVolumetricField_(particleCloud_.mesh().lookupObject<volScalarField> (cpVolumetricFieldName_));
-
-            #if defined(version40) || defined(versionv1612plus)
-            mSource_.primitiveFieldRef() /= cpVolumetricField_.primitiveField()+SMALL;
-            mSourceKImpl_.primitiveFieldRef() /= cpVolumetricField_.primitiveField()+SMALL;
-            #else
-            mSource_.internalField() /= cpVolumetricField_.internalField()+SMALL;
-            mSourceKImpl_.internalField() /= cpVolumetricField_.internalField()+SMALL;
-            #endif
+            scalarField cpFieldWithSmall = cpVolumetricField_.internalField() + SMALL;
+            mSource_.primitiveFieldRef() /= cpVolumetricField_.primitiveField() + SMALL;
+mSourceKImpl_.primitiveFieldRef() /= cpVolumetricField_.primitiveField() + SMALL;
         }
     }
 

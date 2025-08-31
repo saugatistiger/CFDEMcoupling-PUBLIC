@@ -69,6 +69,7 @@ setDEMGravity::setDEMGravity
     filePathList_(100),
     scalarList_(40),
     labelList_(1),
+    g_(sm.mesh().lookupObject<uniformDimensionedVectorField> ("g")),
     #if defined(version21) || defined(version16ext)
         g_(sm.mesh().lookupObject<uniformDimensionedVectorField> ("g")),
     #elif defined(version15)

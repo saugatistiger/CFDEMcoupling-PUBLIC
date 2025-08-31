@@ -65,7 +65,7 @@ autoPtr<locateModel> locateModel::New
     Info<< "Selecting locateModel "
          << locateModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(locateModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

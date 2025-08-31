@@ -63,6 +63,7 @@ compileLib()
     #- header
     echo 2>&1 | tee -a $logpath/$logfileName
     echo "//   $headerText   //" 2>&1 | tee -a $logpath/$logfileName
+
     echo 2>&1 | tee -a $logpath/$logfileName
 
     #- write path
@@ -75,11 +76,15 @@ compileLib()
         str=$casePath
         i=$((${#str}-4))
         ending=${str:$i:4}
+
+	echo $ending
+echo "I am here!!!!!!!!!!!!"
         if [[ $ending == "Comp" ]]; then
                 echo "Compiling a compressible library - so doing an rmdepall of incomp library first."
                 echo "Please make sure to have the incompressible libraries first in the library-list.txt!"
                 cd $CFDEM_SRC_DIR/lagrangian/cfdemParticle
                 echo "changing to $PWD"
+		rmdepall 2>&1 | tee -a $logpath/$logfileName
                 if [[ $WM_PROJECT_VERSION == v1606+ || $WM_PROJECT_VERSION == v1612+ || $WM_PROJECT_VERSION == v1706 || $WM_PROJECT_VERSION == 2.4.* || ($WM_PROJECT_VERSION == "3.2" && $WM_FORK == "extend") ]]; then
                     rmdepall 2>&1 | tee -a $logpath/$logfileName
                 else
@@ -804,7 +809,7 @@ parCFDDEMrun()
     decomposeCase=${11}
     remoteStorageLocation=${12}
     #--------------------------------------------------------------------------------#
-
+    echo "I am still here!!!!!!!!!!!"
     if [[ $debugMode == "on" ]]; then
         debugMode="valgrind"
     elif [[ $debugMode == "strict" ]]; then

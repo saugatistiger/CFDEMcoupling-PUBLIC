@@ -66,7 +66,7 @@ autoPtr<voidFractionModel> voidFractionModel::New
          << voidFractionModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(voidFractionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

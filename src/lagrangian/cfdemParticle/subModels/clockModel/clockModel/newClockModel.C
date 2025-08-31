@@ -56,7 +56,7 @@ autoPtr<clockModel> clockModel::New
          << clockModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(clockModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

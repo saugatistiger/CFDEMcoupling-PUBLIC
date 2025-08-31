@@ -48,7 +48,7 @@ SourceFiles
 
 #include "fvCFD.H"
 #include "IFstream.H"
-
+#include "turbulenceModel.H"
 #if defined(version21) || defined(version16ext)
     #include "turbulenceModel.H"
 #elif defined(version15)
@@ -176,6 +176,8 @@ protected:
     scalar         wall_periodicityCheckTolerance_;
 
     bool meshHasUpdated_;
+
+            const turbulenceModel& turbulence_;
 
     #if defined(version24Dev)
         const turbulenceModel& turbulence_;

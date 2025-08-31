@@ -46,6 +46,8 @@ else
     COUNT=0
 fi
 
+echo "$NLINES"
+echo "$COUNT"
 #Generate lnIncludes, only for paths
 while [ $COUNT -lt $NLINES ]
 do
@@ -109,11 +111,10 @@ do
         # remove old log file
         rm "$logpath/$logfileName"*
         compileLib $logpath $logfileName $casePath $headerText
-
         if [ ${PIPESTATUS[0]} -ne 0 ]; then         
             exit 1
         fi
-
+        echo "Here!!!! Here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         collectLogCFDEMcoupling_src $logpath $logfileName $casePath
         
 

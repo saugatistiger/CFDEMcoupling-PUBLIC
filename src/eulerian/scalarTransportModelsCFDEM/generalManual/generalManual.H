@@ -92,7 +92,9 @@ public:
 
     const                eulerianScalarField& eulerianTemperatureF();
 
-    const                eulerianScalarField& eulerianScalarF(int);
+    const                eulerianScalarField& eulerianScalarF(int) const;
+
+                    eulerianScalarField& eulerianScalarF(int);
 
     void                 createFields();
 

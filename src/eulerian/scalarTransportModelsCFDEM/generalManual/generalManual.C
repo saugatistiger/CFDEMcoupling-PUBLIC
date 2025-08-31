@@ -178,9 +178,14 @@ volScalarField& generalManual::sourceField(int i)
 }
 
 // ************************************************************
-const eulerianScalarField& generalManual::eulerianScalarF(int i)
+const eulerianScalarField& generalManual::eulerianScalarF(int i) const
 {
-     return eulerianFields_[i];
+     return *eulerianFields_[i];
+}
+
+eulerianScalarField& generalManual::eulerianScalarF(int i)
+{
+     return *eulerianFields_[i];
 }
 
 // ************************************************************

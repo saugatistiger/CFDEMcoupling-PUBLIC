@@ -56,7 +56,7 @@ autoPtr<averagingModel> averagingModel::New
          << averagingModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(averagingModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

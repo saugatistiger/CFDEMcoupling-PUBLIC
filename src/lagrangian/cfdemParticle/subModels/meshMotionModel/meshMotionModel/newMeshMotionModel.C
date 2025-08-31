@@ -56,7 +56,7 @@ autoPtr<meshMotionModel> meshMotionModel::New
          << meshMotionModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(meshMotionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

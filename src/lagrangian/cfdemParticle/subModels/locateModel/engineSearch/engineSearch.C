@@ -63,6 +63,7 @@ engineSearch::engineSearch
     locateModel(dict,sm),
     propsDict_(dict.subDict(name == "" ? typeName + "Props" : name + "Props")),
     treeSearch_(propsDict_.lookupOrDefault<Switch>("treeSearch", true)),
+    searchEngine_(particleCloud_.mesh(),polyMesh::FACE_PLANES)
     #if defined(version30)
         searchEngine_(particleCloud_.mesh(),polyMesh::FACE_PLANES)
     #elif defined(version21)

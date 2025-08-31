@@ -56,7 +56,7 @@ autoPtr<registryModel> registryModel::New
          << registryModelType << endl;*/
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(registryModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

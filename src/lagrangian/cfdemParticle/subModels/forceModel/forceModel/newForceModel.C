@@ -51,7 +51,7 @@ autoPtr<forceModel> forceModel::New
     Info<< "Selecting forceModel "
          << forceType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(forceType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

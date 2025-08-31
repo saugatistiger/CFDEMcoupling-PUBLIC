@@ -52,7 +52,7 @@ autoPtr<momCoupleModel> momCoupleModel::New
          << momCoupleType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(momCoupleType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

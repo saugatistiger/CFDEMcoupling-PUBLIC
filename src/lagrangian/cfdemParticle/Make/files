@@ -21,7 +21,6 @@ absorptionEmissionModels = $(path)/subModels/absorptionEmissionModels
 
 
 $(cfdemCloud)/cfdemCloud.C
-$(derived)/cfdemCloudIB/cfdemCloudIB.C
 
 $(cfdTools)/global.C
 $(cfdTools)/IOtools/json/json.C
@@ -45,7 +44,6 @@ $(dataExchangeModels)/twoWayFiles/twoWayFiles.C
 $(dataExchangeModels)/twoWayMPI/twoWayMPI.C
 
 $(forceModels)/Archimedes/Archimedes.C
-$(forceModels)/ArchimedesIB/ArchimedesIB.C
 $(forceModels)/checkCouplingInterval/checkCouplingInterval.C
 $(forceModels)/DiFeliceDrag/DiFeliceDrag.C
 $(forceModels)/fieldStore/fieldStore.C
@@ -62,7 +60,6 @@ $(forceModels)/particleCellVolume/particleCellVolume.C
 $(forceModels)/particleVolume/particleVolume.C
 $(forceModels)/scalarGeneralExchange/scalarGeneralExchange.C
 $(forceModels)/SchillerNaumannDrag/SchillerNaumannDrag.C
-$(forceModels)/ShirgaonkarIB/ShirgaonkarIB.C
 $(forceModels)/virtualMassForce/virtualMassForce.C
 $(forceModels)/viscForce/viscForce.C
 $(forceModels)/volWeightedAverage/volWeightedAverage.C
@@ -87,10 +84,10 @@ $(liggghtsCommandModels)/setDEMGravity/setDEMGravity.C
 $(liggghtsCommandModels)/writeLiggghts/writeLiggghts.C
 
 $(locateModels)/engineSearch/engineSearch.C
-$(locateModels)/engineSearchIB/engineSearchIB.C
 $(locateModels)/locateModel/locateModel.C
 $(locateModels)/locateModel/newLocateModel.C
 $(locateModels)/standardSearch/standardSearch.C
+$(locateModels)/engineSearchIB/engineSearchIB.C
 
 $(meshMotionModels)/meshMotionModel/meshMotionModel.C
 $(meshMotionModels)/meshMotionModel/newMeshMotionModel.C
@@ -120,7 +117,6 @@ $(voidFractionModels)/bigParticleVoidFraction/bigParticleVoidFraction.C
 $(voidFractionModels)/centreVoidFraction/centreVoidFraction.C
 $(voidFractionModels)/dividedVoidFraction/dividedVoidFraction.C
 $(voidFractionModels)/GaussVoidFraction/GaussVoidFraction.C
-$(voidFractionModels)/IBVoidFraction/IBVoidFraction.C
 $(voidFractionModels)/noVoidFraction/noVoidFraction.C
 $(voidFractionModels)/trilinearVoidFraction/trilinearVoidFraction.C
 $(voidFractionModels)/voidFractionModel/newVoidFractionModel.C

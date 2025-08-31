@@ -16,6 +16,10 @@
     #define versionv1612plus
 #elif(CFDEMWMPROJECTVERSION == 1706)
     #define versionv1706
+#elif(CFDEMWMPROJECTVERSION == 2506)
+    #define versionv2506
+#elif(CFDEMWMPROJECTVERSION == v2506)
+    #define versionv2506
 #endif
 
 // features of 16ext work also in extend 3.2
@@ -83,3 +87,4 @@
     #define version21
     #define version221
 #endif
+

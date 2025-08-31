@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "0.01/uniform/functionObjects";
+    object      functionObjectProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+cdf7e925f5746741c316f5fbcf39ad0dfca90775
+{
+    probes
+    {
+        scalar
+        {
+            average(p)      -0.2359585479529976;
+            min(p)          -0.2701888082429436;
+            max(p)          -0.2017282876630516;
+            average(voidfraction) 1;
+            min(voidfraction) 1;
+            max(voidfraction) 1;
+        }
+        label
+        {
+            size(p)         2;
+            size(voidfraction) 2;
+            size(U)         2;
+        }
+        vector
+        {
+            average(U)      ( 10.1561 -0.0494793 0.0201732 );
+            min(U)          ( 10.1495 -0.0636866 0.00578149 );
+            max(U)          ( 10.1627 -0.0352721 0.0345648 );
+        }
+    }
+    volFlow_inlet
+    {
+        scalar
+        {
+            sum(inlet,phi)  -0.09901630024086341;
+        }
+    }
+    volFlow_outlet
+    {
+        scalar
+        {
+            sum(outlet,phi) 0.09901630024086341;
+        }
+    }
+    volFlow_wall
+    {
+        scalar
+        {
+            sum(wall,phi)   6.482884261539789e-06;
+        }
+    }
+}
+
+
+// ************************************************************************* //

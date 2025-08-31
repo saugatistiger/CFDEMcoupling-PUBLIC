@@ -54,7 +54,7 @@ autoPtr<IOModel> IOModel::New
     Info<< "Selecting IOModel "
          << IOModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(IOModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

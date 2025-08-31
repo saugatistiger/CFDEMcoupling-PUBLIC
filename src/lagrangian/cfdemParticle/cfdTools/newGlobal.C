@@ -56,7 +56,7 @@ autoPtr<global> global::New
          << globalType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(globalType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

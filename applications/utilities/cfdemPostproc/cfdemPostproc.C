@@ -35,11 +35,8 @@ Description
 #include "singlePhaseTransportModel.H"
 
 #include "OFversion.H"
-#if defined(version30)
     #include "turbulentTransportModel.H"
-#else
-    #include "turbulenceModel.H"
-#endif
+
 
 #include "cfdemCloud.H"
 #include "dataExchangeModel.H"
@@ -114,11 +111,7 @@ int main(int argc, char *argv[])
         particleCloud.setPos(positions_);
 
         particleCloud.voidFractionM().setvoidFraction(NULL,voidfractions_,particleWeights_,particleVolumes_,particleV_);
-        #if defined(versionv1612plus) || defined(version40) 
-            voidfraction = particleCloud.voidFractionM().voidFractionInterp();
-        #else
-            voidfraction.internalField() = particleCloud.voidFractionM().voidFractionInterp();
-        #endif
+        voidfraction = particleCloud.voidFractionM().voidFractionInterp();
         voidfraction.correctBoundaryConditions();
 
         particleCloud.averagingM().setVectorAverage

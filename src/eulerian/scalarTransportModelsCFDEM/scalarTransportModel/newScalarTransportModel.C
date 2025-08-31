@@ -64,7 +64,7 @@ autoPtr<scalarTransportModel> scalarTransportModel::New
     Info<< "Selecting scalarTransportModel "
 		 << scalarTransportModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(scalarTransportModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

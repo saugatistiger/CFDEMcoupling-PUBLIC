@@ -56,7 +56,7 @@ autoPtr<dataExchangeModel> dataExchangeModel::New
          << dataExchangeModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(dataExchangeModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

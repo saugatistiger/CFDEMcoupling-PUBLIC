@@ -103,13 +103,13 @@ void Foam::fv::meanSupVelocityForce::correct(volVectorField& U)
 {
     if (twoPhase_)
     {
-        word alphaName = coeffs_.lookup("alphaField");
+        word alphaName = word(coeffs_.lookup("alphaField"));
         alpha_ = mesh_.lookupObject<volScalarField>(alphaName);
     }
 
     if (coupled_)
     {
-        word voidfractionName = coeffs_.lookup("voidfractionField");
+        word voidfractionName = word(coeffs_.lookup("voidfractionField"));
         voidfraction_ = mesh_.lookupObject<volScalarField>(voidfractionName);
     }
     

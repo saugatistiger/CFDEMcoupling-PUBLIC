@@ -132,17 +132,7 @@ Foam::cfdemCloud::cfdemCloud
     meshHasUpdated_(false),
     turbulence_
     (
-        #if defined(version24Dev)
             mesh.lookupObject<turbulenceModel>
-        #elif defined(version21) || defined(version16ext)
-            #ifdef compre
-                mesh.lookupObject<compressible::turbulenceModel>
-            #else
-                mesh.lookupObject<incompressible::turbulenceModel>
-            #endif
-        #elif defined(version15)
-            mesh.lookupObject<incompressible::RASModel>
-        #endif
         (
             turbulenceModelType_
         )
@@ -293,7 +283,6 @@ Foam::cfdemCloud::cfdemCloud
     #include "versionInfo.H"
     global buildInfo(couplingProperties_,*this);
     buildInfo.info();
-
     //-- apply debug Mode to sub models
 
     // set debug flag according to env
@@ -806,6 +795,7 @@ bool Foam::cfdemCloud::evolve
         }
 
     }//end ignore
+
     return doCouple;
 }
 

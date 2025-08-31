@@ -136,7 +136,7 @@ public:
 
 
     // Member Functions
-    void update(surfaceScalarField, volScalarField, volScalarField, scalar Sc, bool limitDiffusion=false) const ;
+    void update(surfaceScalarField, volScalarField, volScalarField, scalar Sc, bool limitDiffusion=false);
 
     void bound(autoPtr<eulerianScalarField>*) const {};
 

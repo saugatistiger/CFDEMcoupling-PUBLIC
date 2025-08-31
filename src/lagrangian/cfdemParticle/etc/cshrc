@@ -351,6 +351,14 @@ else if ( $WM_PROJECT_VERSION =~ "v1612+" ) then
     cfdemecho "In doubt switch to OpenFOAM(R) 6."
     cfdemecho "************************************"
     sleep 1.5
+else if ( $WM_PROJECT_VERSION =~ "v2506" ) then
+    setenv CFDEM_WM_PROJECT_VERSION v2506
+    cfdemecho "************************************"
+    cfdemecho "WARNING from your CFDEM code!"
+    cfdemecho "WARNING: Coupling with your OpenFOAM(R) version is not officially supported!"
+    cfdemecho "In doubt switch to OpenFOAM(R) 6."
+    cfdemecho "************************************"
+    sleep 1.5
 else if ( $WM_PROJECT_VERSION =~ "2.4.*" ) then
     setenv CFDEM_WM_PROJECT_VERSION 24
     cfdemecho "************************************"

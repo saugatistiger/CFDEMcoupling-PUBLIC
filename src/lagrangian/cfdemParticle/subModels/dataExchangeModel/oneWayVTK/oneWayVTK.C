@@ -33,6 +33,7 @@ Description
 
 #include "oneWayVTK.H"
 #include "addToRunTimeSelectionTable.H"
+#include <fstream>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -111,8 +112,8 @@ void oneWayVTK::getData
         // set file pointer
         string HH=string(H);
         const char * paricleFilePath=HH.c_str();
-        ifstream* inputPtr;
-        inputPtr = new ifstream(paricleFilePath);
+        std::ifstream* inputPtr;
+        inputPtr = new std::ifstream(paricleFilePath);
         if(!*inputPtr) FatalError << "File not found!, " << H << "\n" << abort(FatalError);
 
         if (name == "radius")
@@ -156,8 +157,8 @@ void oneWayVTK::getData
         // set file pointer
         string HH=string(H);
         const char * paricleFilePath=HH.c_str();
-        ifstream* inputPtr;
-        inputPtr = new ifstream(paricleFilePath);
+        std::ifstream* inputPtr;
+        inputPtr = new std::ifstream(paricleFilePath);
         if(!*inputPtr) FatalError << "File not found!, " << H << "\n" << abort(FatalError);
 
         // read position data from VTK file

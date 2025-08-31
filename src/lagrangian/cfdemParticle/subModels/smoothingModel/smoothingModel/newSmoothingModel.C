@@ -56,7 +56,7 @@ autoPtr<smoothingModel> smoothingModel::New
          << smoothingModelType << endl;
 
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(smoothingModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
