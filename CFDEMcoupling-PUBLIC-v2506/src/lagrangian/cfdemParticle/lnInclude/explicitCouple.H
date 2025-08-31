@@ -1,1 +1,0 @@
-../subModels/momCoupleModel/explicitCouple/explicitCouple.H

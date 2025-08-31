@@ -1,1 +1,0 @@
-../subModels/dataExchangeModel/twoWayMPI/twoWayMPI.C

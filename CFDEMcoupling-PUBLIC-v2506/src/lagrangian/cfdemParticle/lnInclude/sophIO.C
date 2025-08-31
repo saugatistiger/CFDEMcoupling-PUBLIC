@@ -1,1 +1,0 @@
-../subModels/IOModel/sophIO/sophIO.C

@@ -1,1 +1,0 @@
-../subModels/liggghtsCommandModel/writeLiggghts/writeLiggghts.H

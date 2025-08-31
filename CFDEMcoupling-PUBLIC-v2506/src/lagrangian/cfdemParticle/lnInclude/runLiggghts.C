@@ -1,1 +1,0 @@
-../subModels/liggghtsCommandModel/runLiggghts/runLiggghts.C

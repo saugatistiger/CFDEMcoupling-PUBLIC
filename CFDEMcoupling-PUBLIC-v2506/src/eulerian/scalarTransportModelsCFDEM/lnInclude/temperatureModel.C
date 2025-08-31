@@ -1,1 +1,0 @@
-../temperatureModel/temperatureModel.C
