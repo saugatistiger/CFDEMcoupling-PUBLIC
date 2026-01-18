@@ -1,0 +1,2014 @@
+
+atom_style      granular
+atom_modify     map array
+communicate     single vel yes
+
+boundary        m m m
+newton          off
+
+units           si
+processors      2 2 1
+
+# read the restart file
+read_restart    ../DEM/post/restart/liggghts.restartCFDEM
+  orthogonal box = (-0.015 -0.015 -0.001) to (0.015 0.015 0.0554)
+  2 by 2 by 1 MPI processor grid
+  10000 atoms
+
+neighbor        0.0005 bin
+neigh_modify    delay 0
+
+# Material properties required for granular pair styles
+
+fix         m1 all property/global youngsModulus peratomtype 5.e6
+fix         m2 all property/global poissonsRatio peratomtype 0.45
+fix         m3 all property/global coefficientRestitution peratomtypepair 1 0.3
+fix         m4 all property/global coefficientFriction peratomtypepair 1 0.5
+
+# pair style
+pair_style  gran model hertz tangential history # Hertzian without cohesion
+pair_coeff  * *
+
+# timestep, gravity
+timestep    0.00001
+fix         gravi all gravity 9.81 vector 0.0 0.0 -1.0
+
+fix     zwalls1  all wall/gran model hertz tangential history primitive type 1 zplane 0.0
+Resetting global state of Fix history_zwalls1 Style property/atom from restart file info
+Resetting per-atom state of Fix history_zwalls1 Style property/atom from restart file info
+fix     zwalls2  all wall/gran model hertz tangential history primitive type 1 zplane 0.0553
+Resetting global state of Fix history_zwalls2 Style property/atom from restart file info
+Resetting per-atom state of Fix history_zwalls2 Style property/atom from restart file info
+fix     cylwalls all wall/gran model hertz tangential history primitive type 1 zcylinder 0.01385 0. 0.
+Resetting global state of Fix history_cylwalls Style property/atom from restart file info
+Resetting per-atom state of Fix history_cylwalls Style property/atom from restart file info
+
+# change the particles density
+set     group all density 2000
+  10000 settings made for density
+
+# cfd coupling
+fix     cfd all couple/cfd couple_every 100 mpi
+couple_every as specified in LIGGGHTS is overriden by calling external program (../fix_cfd_coupling.cpp:114)
+fix     cfd2 all couple/cfd/force/implicit
+Resetting global state of Fix dragforce Style property/atom from restart file info
+Resetting per-atom state of Fix dragforce Style property/atom from restart file info
+Resetting global state of Fix hdtorque Style property/atom from restart file info
+Resetting per-atom state of Fix hdtorque Style property/atom from restart file info
+Resetting global state of Fix Ksl Style property/atom from restart file info
+Resetting per-atom state of Fix Ksl Style property/atom from restart file info
+Resetting global state of Fix uf Style property/atom from restart file info
+Resetting per-atom state of Fix uf Style property/atom from restart file info
+Resetting global state of Fix KslRotation Style property/atom from restart file info
+Resetting per-atom state of Fix KslRotation Style property/atom from restart file info
+Resetting global state of Fix ex Style property/atom from restart file info
+Resetting per-atom state of Fix ex Style property/atom from restart file info
+Resetting global state of Fix KslExtra Style property/atom from restart file info
+Resetting per-atom state of Fix KslExtra Style property/atom from restart file info
+
+# apply nve integration to all particles that are inserted as single particles
+fix     integr all nve/sphere
+
+# center of mass
+compute     centerOfMass all com
+
+# compute total dragforce
+compute     dragtotal all reduce sum f_dragforce[1] f_dragforce[2] f_dragforce[3]
+
+# screen output
+compute         rke all erotate/sphere
+thermo_style    custom step atoms ke c_rke vol c_centerOfMass[3] c_dragtotal[1] c_dragtotal[2] c_dragtotal[3]
+thermo          10
+thermo_modify   lost ignore norm no
+
+dump        dmp all custom 5000 ../DEM/post/dump*.liggghts_restart id type x y z vx vy vz fx fy fz f_dragforce[1] f_dragforce[2] f_dragforce[3] radius
+
+run         1
+Resetting global state of Fix contacthistory Style contacthistory from restart file info
+Resetting per-atom state of Fix contacthistory Style contacthistory from restart file info
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2788 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15001    10000   1.151806e-08  6.5621786e-09      5.076e-05   0.0076115016  0.00023942634 -7.0041977e-05    0.052768877 
+   15002    10000  1.1503393e-08  6.5284717e-09      5.076e-05   0.0076115095  0.00023942634 -7.0041977e-05    0.052768877 
+Loop time of 0.000690379 on 4 procs for 1 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.000424171 (61.4403)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 7.6217e-05 (11.0399)
+Outpt time (%) = 7.24473e-05 (10.4938)
+Other time (%) = 0.000117544 (17.026)
+
+Nlocal:    2500 ave 2525 max 2464 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    739.25 ave 749 max 732 min
+Histogram: 1 0 1 0 1 0 0 0 0 1
+Neighs:    17456.2 ave 17624 max 17214 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69825
+Ave neighs/atom = 6.9825
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15002    10000  1.1503393e-08  6.5284717e-09      5.076e-05   0.0076115095  0.00023942634 -7.0041977e-05    0.052768877 
+   15010    10000  1.1516407e-08  6.5457516e-09      5.076e-05   0.0076115729  0.00023942634 -7.0041977e-05    0.052768877 
+   15020    10000  1.1556831e-08  6.6145738e-09      5.076e-05   0.0076116518  0.00023942634 -7.0041977e-05    0.052768877 
+   15030    10000  1.1603753e-08  6.6832986e-09      5.076e-05   0.0076117304  0.00023942634 -7.0041977e-05    0.052768877 
+   15040    10000  1.1639459e-08  6.7430542e-09      5.076e-05   0.0076118085  0.00023942634 -7.0041977e-05    0.052768877 
+   15050    10000  1.1686581e-08  6.8111564e-09      5.076e-05    0.007611886  0.00023942634 -7.0041977e-05    0.052768877 
+   15060    10000  1.1697207e-08  6.8829781e-09      5.076e-05    0.007611963  0.00023942634 -7.0041977e-05    0.052768877 
+   15070    10000  1.1704647e-08  6.9623128e-09      5.076e-05   0.0076120393  0.00023942634 -7.0041977e-05    0.052768877 
+   15080    10000  1.1703391e-08  7.0404144e-09      5.076e-05   0.0076121149  0.00023942634 -7.0041977e-05    0.052768877 
+   15090    10000  1.1674863e-08  7.1133243e-09      5.076e-05   0.0076121896  0.00023942634 -7.0041977e-05    0.052768877 
+CFD Coupling established at step 15100
+   15100    10000  1.1668405e-08  7.1788565e-09      5.076e-05   0.0076122635  0.00023942634 -7.0041977e-05    0.052768877 
+   15102    10000  1.1668384e-08  7.1911365e-09      5.076e-05   0.0076122782  0.00023942634 -7.0041977e-05    0.052768877 
+Loop time of 0.057025 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0421995 (74.0017)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00422346 (7.40633)
+Outpt time (%) = 0.00100977 (1.77074)
+Other time (%) = 0.00959231 (16.8212)
+
+Nlocal:    2500 ave 2525 max 2464 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    739.25 ave 749 max 732 min
+Histogram: 1 0 1 0 1 0 0 0 0 1
+Neighs:    17456.2 ave 17624 max 17214 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69825
+Ave neighs/atom = 6.9825
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15102    10000  1.1668384e-08  7.1911365e-09      5.076e-05   0.0076122782  0.00028288861  0.00027298775    0.054550824 
+   15110    10000  1.1896164e-08  7.2056326e-09      5.076e-05   0.0076123374  0.00028288861  0.00027298775    0.054550824 
+   15120    10000  1.2207982e-08  7.2637825e-09      5.076e-05    0.007612413  0.00028288861  0.00027298775    0.054550824 
+   15130    10000  1.2502052e-08  7.3277156e-09      5.076e-05   0.0076124903  0.00028288861  0.00027298775    0.054550824 
+   15140    10000  1.2807564e-08  7.3990546e-09      5.076e-05   0.0076125692  0.00028288861  0.00027298775    0.054550824 
+   15150    10000  1.3093183e-08  7.4637843e-09      5.076e-05   0.0076126496  0.00028288861  0.00027298775    0.054550824 
+   15160    10000  1.3370842e-08   7.535818e-09      5.076e-05   0.0076127312  0.00028288861  0.00027298775    0.054550824 
+   15170    10000  1.3647911e-08  7.6056976e-09      5.076e-05   0.0076128139  0.00028288861  0.00027298775    0.054550824 
+   15180    10000  1.3917322e-08   7.678583e-09      5.076e-05   0.0076128977  0.00028288861  0.00027298775    0.054550824 
+   15190    10000  1.4177693e-08  7.7325207e-09      5.076e-05   0.0076129823  0.00028288861  0.00027298775    0.054550824 
+CFD Coupling established at step 15200
+   15200    10000  1.4398044e-08  7.7981028e-09      5.076e-05   0.0076130677  0.00028288861  0.00027298775    0.054550824 
+   15202    10000  1.4438933e-08  7.8141828e-09      5.076e-05   0.0076130849  0.00028288861  0.00027298775    0.054550824 
+Loop time of 0.058767 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0425231 (72.3588)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00413256 (7.03211)
+Outpt time (%) = 0.00125175 (2.13002)
+Other time (%) = 0.0108596 (18.4791)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    739.5 ave 748 max 733 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17454 ave 17616 max 17220 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+
+Total # of neighbors = 69816
+Ave neighs/atom = 6.9816
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15202    10000  1.4438933e-08  7.8141828e-09      5.076e-05   0.0076130849  0.00025665211  -5.674803e-05    0.055314363 
+   15210    10000  1.4611554e-08  7.8510016e-09      5.076e-05   0.0076131542  0.00025665211  -5.674803e-05    0.055314363 
+   15220    10000  1.4877287e-08  7.9317496e-09      5.076e-05   0.0076132423  0.00025665211  -5.674803e-05    0.055314363 
+   15230    10000  1.5138917e-08  8.0026951e-09      5.076e-05    0.007613332  0.00025665211  -5.674803e-05    0.055314363 
+   15240    10000  1.5394753e-08  8.0553546e-09      5.076e-05   0.0076134231  0.00025665211  -5.674803e-05    0.055314363 
+   15250    10000  1.5619243e-08  8.1009682e-09      5.076e-05   0.0076135153  0.00025665211  -5.674803e-05    0.055314363 
+   15260    10000  1.5846153e-08  8.1596791e-09      5.076e-05   0.0076136085  0.00025665211  -5.674803e-05    0.055314363 
+   15270    10000  1.6079405e-08   8.231609e-09      5.076e-05   0.0076137026  0.00025665211  -5.674803e-05    0.055314363 
+   15280    10000  1.6276513e-08  8.3129401e-09      5.076e-05   0.0076137975  0.00025665211  -5.674803e-05    0.055314363 
+   15290    10000  1.6433738e-08  8.3958558e-09      5.076e-05    0.007613893  0.00025665211  -5.674803e-05    0.055314363 
+CFD Coupling established at step 15300
+   15300    10000  1.6603238e-08  8.4831351e-09      5.076e-05   0.0076139889  0.00025665211  -5.674803e-05    0.055314363 
+   15302    10000  1.6638632e-08  8.5018298e-09      5.076e-05   0.0076140082  0.00025665211  -5.674803e-05    0.055314363 
+Loop time of 0.056519 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0420562 (74.4106)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00347048 (6.14038)
+Outpt time (%) = 0.00143161 (2.53298)
+Other time (%) = 0.00956077 (16.916)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    739.75 ave 749 max 733 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17454.5 ave 17614 max 17225 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69818
+Ave neighs/atom = 6.9818
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15302    10000  1.6638632e-08  8.5018298e-09      5.076e-05   0.0076140082  0.00030139663  -2.533867e-05    0.055738935 
+   15310    10000  1.6843395e-08  8.5518893e-09      5.076e-05   0.0076140855  0.00030139663  -2.533867e-05    0.055738935 
+   15320    10000  1.7092078e-08  8.6512672e-09      5.076e-05    0.007614183  0.00030139663  -2.533867e-05    0.055738935 
+   15330    10000  1.7316759e-08   8.755266e-09      5.076e-05   0.0076142815  0.00030139663  -2.533867e-05    0.055738935 
+   15340    10000  1.7495499e-08  8.8589868e-09      5.076e-05   0.0076143807  0.00030139663  -2.533867e-05    0.055738935 
+   15350    10000  1.7704435e-08  8.9641934e-09      5.076e-05   0.0076144804  0.00030139663  -2.533867e-05    0.055738935 
+   15360    10000  1.7934508e-08  9.0782477e-09      5.076e-05   0.0076145807  0.00030139663  -2.533867e-05    0.055738935 
+   15370    10000  1.8135519e-08  9.1936336e-09      5.076e-05   0.0076146812  0.00030139663  -2.533867e-05    0.055738935 
+   15380    10000  1.8319985e-08  9.3038235e-09      5.076e-05    0.007614782  0.00030139663  -2.533867e-05    0.055738935 
+   15390    10000  1.8487128e-08  9.4024432e-09      5.076e-05   0.0076148828  0.00030139663  -2.533867e-05    0.055738935 
+CFD Coupling established at step 15400
+   15400    10000  1.8608165e-08  9.4901898e-09      5.076e-05   0.0076149837  0.00030139663  -2.533867e-05    0.055738935 
+   15402    10000  1.8631007e-08  9.5097061e-09      5.076e-05   0.0076150038  0.00030139663  -2.533867e-05    0.055738935 
+Loop time of 0.0552097 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0413248 (74.8506)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00474041 (8.58619)
+Outpt time (%) = 0.000924841 (1.67514)
+Other time (%) = 0.00821967 (14.8881)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740 ave 749 max 734 min
+Histogram: 1 0 1 1 0 0 0 0 0 1
+Neighs:    17450.8 ave 17611 max 17219 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+
+Total # of neighbors = 69803
+Ave neighs/atom = 6.9803
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15402    10000  1.8631007e-08  9.5097061e-09      5.076e-05   0.0076150038  0.00023996856 -4.9057256e-05    0.056635485 
+   15410    10000  1.8865548e-08  9.5599256e-09      5.076e-05   0.0076150849  0.00023996856 -4.9057256e-05    0.056635485 
+   15420    10000  1.9201513e-08  9.6618215e-09      5.076e-05   0.0076151876  0.00023996856 -4.9057256e-05    0.056635485 
+   15430    10000  1.9377339e-08  9.7296375e-09      5.076e-05   0.0076152916  0.00023996856 -4.9057256e-05    0.056635485 
+   15440    10000  1.9580514e-08  9.8144393e-09      5.076e-05   0.0076153968  0.00023996856 -4.9057256e-05    0.056635485 
+   15450    10000  1.9845426e-08  9.9213081e-09      5.076e-05   0.0076155029  0.00023996856 -4.9057256e-05    0.056635485 
+   15460    10000  2.0124661e-08  1.0027243e-08      5.076e-05     0.00761561  0.00023996856 -4.9057256e-05    0.056635485 
+   15470    10000  2.0402255e-08  1.0129214e-08      5.076e-05   0.0076157178  0.00023996856 -4.9057256e-05    0.056635485 
+   15480    10000  2.0676777e-08  1.0238214e-08      5.076e-05   0.0076158263  0.00023996856 -4.9057256e-05    0.056635485 
+   15490    10000  2.0916473e-08  1.0345912e-08      5.076e-05   0.0076159354  0.00023996856 -4.9057256e-05    0.056635485 
+CFD Coupling established at step 15500
+   15500    10000  2.1139361e-08  1.0452475e-08      5.076e-05    0.007616045  0.00023996856 -4.9057256e-05    0.056635485 
+   15502    10000  2.1182051e-08  1.0474404e-08      5.076e-05   0.0076160669  0.00023996856 -4.9057256e-05    0.056635485 
+Loop time of 0.0547733 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0412618 (75.3319)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00394133 (7.19572)
+Outpt time (%) = 0.000842565 (1.53828)
+Other time (%) = 0.00872762 (15.9341)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740 ave 749 max 733 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17451 ave 17613 max 17220 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69804
+Ave neighs/atom = 6.9804
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15502    10000  2.1182051e-08  1.0474404e-08      5.076e-05   0.0076160669  0.00024497101 -4.9553829e-05    0.057314988 
+   15510    10000  2.1451847e-08  1.0532642e-08      5.076e-05   0.0076161553  0.00024497101 -4.9553829e-05    0.057314988 
+   15520    10000  2.1792859e-08  1.0633361e-08      5.076e-05    0.007616267  0.00024497101 -4.9553829e-05    0.057314988 
+   15530    10000  2.2072689e-08  1.0713869e-08      5.076e-05     0.00761638  0.00024497101 -4.9553829e-05    0.057314988 
+   15540    10000  2.2334515e-08  1.0790872e-08      5.076e-05   0.0076164943  0.00024497101 -4.9553829e-05    0.057314988 
+   15550    10000  2.2571477e-08  1.0865325e-08      5.076e-05   0.0076166096  0.00024497101 -4.9553829e-05    0.057314988 
+   15560    10000  2.2747798e-08   1.095421e-08      5.076e-05   0.0076167258  0.00024497101 -4.9553829e-05    0.057314988 
+   15570    10000  2.2981877e-08  1.1040119e-08      5.076e-05   0.0076168429  0.00024497101 -4.9553829e-05    0.057314988 
+   15580    10000  2.3213773e-08   1.112247e-08      5.076e-05   0.0076169607  0.00024497101 -4.9553829e-05    0.057314988 
+   15590    10000  2.3347004e-08  1.1164445e-08      5.076e-05    0.007617079  0.00024497101 -4.9553829e-05    0.057314988 
+CFD Coupling established at step 15600
+   15600    10000  2.3492815e-08  1.1232619e-08      5.076e-05   0.0076171978  0.00024497101 -4.9553829e-05    0.057314988 
+   15602    10000  2.3530894e-08  1.1250652e-08      5.076e-05   0.0076172216  0.00024497101 -4.9553829e-05    0.057314988 
+Loop time of 0.0549783 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0411863 (74.9138)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00421917 (7.67424)
+Outpt time (%) = 0.000969128 (1.76275)
+Other time (%) = 0.00860366 (15.6492)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.25 ave 749 max 734 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17452.5 ave 17620 max 17216 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69810
+Ave neighs/atom = 6.981
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15602    10000  2.3530894e-08  1.1250652e-08      5.076e-05   0.0076172216  0.00023739147 -2.5980933e-06    0.057863394 
+   15610    10000   2.379952e-08  1.1296326e-08      5.076e-05   0.0076173173  0.00023739147 -2.5980933e-06    0.057863394 
+   15620    10000  2.4210121e-08  1.1407343e-08      5.076e-05   0.0076174382  0.00023739147 -2.5980933e-06    0.057863394 
+   15630    10000  2.4618444e-08  1.1515858e-08      5.076e-05   0.0076175602  0.00023739147 -2.5980933e-06    0.057863394 
+   15640    10000  2.4937819e-08  1.1602795e-08      5.076e-05   0.0076176834  0.00023739147 -2.5980933e-06    0.057863394 
+   15650    10000  2.5264198e-08  1.1578419e-08      5.076e-05   0.0076178077  0.00023739147 -2.5980933e-06    0.057863394 
+   15660    10000  2.5577338e-08  1.1700728e-08      5.076e-05   0.0076179328  0.00023739147 -2.5980933e-06    0.057863394 
+   15670    10000  2.5887008e-08  1.1775223e-08      5.076e-05    0.007618059  0.00023739147 -2.5980933e-06    0.057863394 
+   15680    10000  2.6139478e-08  1.1887231e-08      5.076e-05   0.0076181859  0.00023739147 -2.5980933e-06    0.057863394 
+   15690    10000  2.6387553e-08  1.2026032e-08      5.076e-05   0.0076183137  0.00023739147 -2.5980933e-06    0.057863394 
+CFD Coupling established at step 15700
+   15700    10000  2.6635095e-08   1.214811e-08      5.076e-05   0.0076184422  0.00023739147 -2.5980933e-06    0.057863394 
+   15702    10000  2.6690106e-08  1.2168005e-08      5.076e-05    0.007618468  0.00023739147 -2.5980933e-06    0.057863394 
+Loop time of 0.0566637 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0414279 (73.1119)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00459739 (8.11345)
+Outpt time (%) = 0.000981445 (1.73205)
+Other time (%) = 0.00965696 (17.0426)
+
+Nlocal:    2500 ave 2525 max 2465 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.5 ave 749 max 735 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Neighs:    17451.5 ave 17620 max 17216 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69806
+Ave neighs/atom = 6.9806
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15702    10000  2.6690106e-08  1.2168005e-08      5.076e-05    0.007618468  0.00024739145 -2.7370367e-05    0.058296966 
+   15710    10000  2.6983786e-08  1.2223197e-08      5.076e-05   0.0076185717  0.00024739145 -2.7370367e-05    0.058296966 
+   15720    10000  2.7358902e-08  1.2338195e-08      5.076e-05   0.0076187026  0.00024739145 -2.7370367e-05    0.058296966 
+   15730    10000  2.7786161e-08  1.2445811e-08      5.076e-05   0.0076188349  0.00024739145 -2.7370367e-05    0.058296966 
+   15740    10000  2.8171037e-08  1.2527072e-08      5.076e-05   0.0076189685  0.00024739145 -2.7370367e-05    0.058296966 
+   15750    10000   2.853293e-08   1.255396e-08      5.076e-05   0.0076191032  0.00024739145 -2.7370367e-05    0.058296966 
+   15760    10000  2.8918061e-08  1.2646562e-08      5.076e-05   0.0076192391  0.00024739145 -2.7370367e-05    0.058296966 
+   15770    10000  2.9244215e-08  1.2737209e-08      5.076e-05   0.0076193761  0.00024739145 -2.7370367e-05    0.058296966 
+   15780    10000  2.9506656e-08  1.2776055e-08      5.076e-05    0.007619514  0.00024739145 -2.7370367e-05    0.058296966 
+   15790    10000  2.9866592e-08  1.2859842e-08      5.076e-05   0.0076196529  0.00024739145 -2.7370367e-05    0.058296966 
+CFD Coupling established at step 15800
+   15800    10000  3.0290053e-08  1.2936667e-08      5.076e-05   0.0076197928  0.00024739145 -2.7370367e-05    0.058296966 
+   15802    10000  3.0372236e-08  1.2947807e-08      5.076e-05   0.0076198208  0.00024739145 -2.7370367e-05    0.058296966 
+Loop time of 0.0548244 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0407445 (74.3181)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00469777 (8.56876)
+Outpt time (%) = 0.000909957 (1.65977)
+Other time (%) = 0.0084722 (15.4533)
+
+Nlocal:    2500 ave 2524 max 2466 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    741 ave 748 max 737 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+Neighs:    17451.5 ave 17614 max 17224 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69806
+Ave neighs/atom = 6.9806
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15802    10000  3.0372236e-08  1.2947807e-08      5.076e-05   0.0076198208  0.00022327752 -2.9013197e-05    0.058585385 
+   15810    10000  3.0738618e-08  1.2965355e-08      5.076e-05   0.0076199337  0.00022327752 -2.9013197e-05    0.058585385 
+   15820    10000  3.1202208e-08  1.3000378e-08      5.076e-05    0.007620076  0.00022327752 -2.9013197e-05    0.058585385 
+   15830    10000  3.1587545e-08  1.3053566e-08      5.076e-05   0.0076202198  0.00022327752 -2.9013197e-05    0.058585385 
+   15840    10000  3.1992136e-08  1.3153685e-08      5.076e-05   0.0076203649  0.00022327752 -2.9013197e-05    0.058585385 
+   15850    10000  3.2434953e-08  1.3281935e-08      5.076e-05   0.0076205112  0.00022327752 -2.9013197e-05    0.058585385 
+   15860    10000  3.2853813e-08  1.3415108e-08      5.076e-05   0.0076206587  0.00022327752 -2.9013197e-05    0.058585385 
+   15870    10000  3.3246737e-08  1.3548231e-08      5.076e-05   0.0076208073  0.00022327752 -2.9013197e-05    0.058585385 
+   15880    10000  3.3595879e-08  1.3681996e-08      5.076e-05    0.007620957  0.00022327752 -2.9013197e-05    0.058585385 
+   15890    10000  3.4023876e-08  1.3821116e-08      5.076e-05   0.0076211077  0.00022327752 -2.9013197e-05    0.058585385 
+CFD Coupling established at step 15900
+   15900    10000  3.4414123e-08  1.3961109e-08      5.076e-05   0.0076212596  0.00022327752 -2.9013197e-05    0.058585385 
+   15902    10000  3.4475494e-08  1.3989276e-08      5.076e-05   0.0076212901  0.00022327752 -2.9013197e-05    0.058585385 
+Loop time of 0.0537849 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0403965 (75.1076)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.003959 (7.3608)
+Outpt time (%) = 0.000979498 (1.82114)
+Other time (%) = 0.00844985 (15.7105)
+
+Nlocal:    2500 ave 2524 max 2466 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.75 ave 748 max 736 min
+Histogram: 1 0 1 1 0 0 0 0 0 1
+Neighs:    17447 ave 17612 max 17220 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69788
+Ave neighs/atom = 6.9788
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   15902    10000  3.4475494e-08  1.3989276e-08      5.076e-05   0.0076212901  0.00028179642 -2.3581759e-05    0.058809576 
+   15910    10000  3.4818947e-08  1.4059559e-08      5.076e-05   0.0076214127  0.00028179642 -2.3581759e-05    0.058809576 
+   15920    10000  3.5380254e-08  1.4196636e-08      5.076e-05   0.0076215676  0.00028179642 -2.3581759e-05    0.058809576 
+   15930    10000  3.5986656e-08   1.432935e-08      5.076e-05   0.0076217241  0.00028179642 -2.3581759e-05    0.058809576 
+   15940    10000   3.657145e-08  1.4454827e-08      5.076e-05   0.0076218823  0.00028179642 -2.3581759e-05    0.058809576 
+   15950    10000  3.7071388e-08   1.455264e-08      5.076e-05    0.007622042  0.00028179642 -2.3581759e-05    0.058809576 
+   15960    10000  3.7573437e-08  1.4648412e-08      5.076e-05   0.0076222034  0.00028179642 -2.3581759e-05    0.058809576 
+   15970    10000  3.8111516e-08  1.4760742e-08      5.076e-05   0.0076223662  0.00028179642 -2.3581759e-05    0.058809576 
+   15980    10000  3.8654597e-08  1.4861327e-08      5.076e-05   0.0076225307  0.00028179642 -2.3581759e-05    0.058809576 
+   15990    10000  3.9055352e-08  1.4964473e-08      5.076e-05   0.0076226967  0.00028179642 -2.3581759e-05    0.058809576 
+CFD Coupling established at step 16000
+   16000    10000    3.94819e-08  1.5096354e-08      5.076e-05   0.0076228642  0.00028179642 -2.3581759e-05    0.058809576 
+   16002    10000  3.9573085e-08  1.5118017e-08      5.076e-05   0.0076228979  0.00028179642 -2.3581759e-05    0.058809576 
+Loop time of 0.0541563 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0404706 (74.7293)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.0038683 (7.14285)
+Outpt time (%) = 0.000864058 (1.59549)
+Other time (%) = 0.00895332 (16.5324)
+
+Nlocal:    2500 ave 2524 max 2466 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    741.25 ave 748 max 737 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+Neighs:    17451.8 ave 17621 max 17219 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69807
+Ave neighs/atom = 6.9807
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16002    10000  3.9573085e-08  1.5118017e-08      5.076e-05   0.0076228979  0.00028590202  1.6198412e-05    0.058955306 
+   16010    10000  3.9967872e-08  1.5166279e-08      5.076e-05   0.0076230334  0.00028590202  1.6198412e-05    0.058955306 
+   16020    10000  4.0474269e-08  1.5269741e-08      5.076e-05   0.0076232044  0.00028590202  1.6198412e-05    0.058955306 
+   16030    10000  4.1046077e-08  1.5413916e-08      5.076e-05   0.0076233773  0.00028590202  1.6198412e-05    0.058955306 
+   16040    10000  4.1653685e-08  1.5522415e-08      5.076e-05   0.0076235521  0.00028590202  1.6198412e-05    0.058955306 
+   16050    10000  4.2282121e-08  1.5638155e-08      5.076e-05   0.0076237287  0.00028590202  1.6198412e-05    0.058955306 
+   16060    10000  4.2906037e-08  1.5763036e-08      5.076e-05   0.0076239071  0.00028590202  1.6198412e-05    0.058955306 
+   16070    10000  4.3393853e-08  1.5816892e-08      5.076e-05   0.0076240873  0.00028590202  1.6198412e-05    0.058955306 
+   16080    10000  4.3776584e-08  1.5935233e-08      5.076e-05   0.0076242693  0.00028590202  1.6198412e-05    0.058955306 
+   16090    10000  4.4274427e-08  1.6106985e-08      5.076e-05    0.007624453  0.00028590202  1.6198412e-05    0.058955306 
+CFD Coupling established at step 16100
+   16100    10000  4.4804077e-08  1.6264288e-08      5.076e-05   0.0076246383  0.00028590202  1.6198412e-05    0.058955306 
+   16102    10000  4.4908612e-08  1.6293558e-08      5.076e-05   0.0076246756  0.00028590202  1.6198412e-05    0.058955306 
+Loop time of 0.0535847 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:44 2025
+
+
+Pair  time (%) = 0.0401555 (74.9383)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00460422 (8.5924)
+Outpt time (%) = 0.000841115 (1.56969)
+Other time (%) = 0.00798391 (14.8996)
+
+Nlocal:    2500 ave 2524 max 2466 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.5 ave 748 max 736 min
+Histogram: 2 0 0 0 1 0 0 0 0 1
+Neighs:    17447.2 ave 17618 max 17216 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+
+Total # of neighbors = 69789
+Ave neighs/atom = 6.9789
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:44 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16102    10000  4.4908612e-08  1.6293558e-08      5.076e-05   0.0076246756  0.00033932366  5.0037355e-05    0.059367022 
+   16110    10000   4.544077e-08  1.6365429e-08      5.076e-05   0.0076248255  0.00033932366  5.0037355e-05    0.059367022 
+   16120    10000  4.6204489e-08  1.6482737e-08      5.076e-05   0.0076250152  0.00033932366  5.0037355e-05    0.059367022 
+   16130    10000  4.6898083e-08  1.6576378e-08      5.076e-05   0.0076252074  0.00033932366  5.0037355e-05    0.059367022 
+   16140    10000  4.7576698e-08  1.6674021e-08      5.076e-05   0.0076254019  0.00033932366  5.0037355e-05    0.059367022 
+   16150    10000    4.82696e-08  1.6771447e-08      5.076e-05   0.0076255988  0.00033932366  5.0037355e-05    0.059367022 
+   16160    10000  4.8935079e-08  1.6894463e-08      5.076e-05    0.007625798  0.00033932366  5.0037355e-05    0.059367022 
+   16170    10000    4.96601e-08  1.7033768e-08      5.076e-05   0.0076259994  0.00033932366  5.0037355e-05    0.059367022 
+   16180    10000  5.0362002e-08  1.7155746e-08      5.076e-05   0.0076262029  0.00033932366  5.0037355e-05    0.059367022 
+   16190    10000  5.1042448e-08  1.7270859e-08      5.076e-05   0.0076264085  0.00033932366  5.0037355e-05    0.059367022 
+CFD Coupling established at step 16200
+   16200    10000  5.1681994e-08  1.7374145e-08      5.076e-05   0.0076266161  0.00033932366  5.0037355e-05    0.059367022 
+   16202    10000  5.1808642e-08  1.7392549e-08      5.076e-05   0.0076266578  0.00033932366  5.0037355e-05    0.059367022 
+Loop time of 0.0542027 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0404167 (74.5659)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00450905 (8.31886)
+Outpt time (%) = 0.000931582 (1.7187)
+Other time (%) = 0.00834537 (15.3966)
+
+Nlocal:    2500 ave 2524 max 2468 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.25 ave 746 max 736 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17446.8 ave 17618 max 17233 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69787
+Ave neighs/atom = 6.9787
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16202    10000  5.1808642e-08  1.7392549e-08      5.076e-05   0.0076266578  0.00032400517  3.2941041e-06    0.059913035 
+   16210    10000  5.2482347e-08  1.7418459e-08      5.076e-05    0.007626826  0.00032400517  3.2941041e-06    0.059913035 
+   16220    10000  5.3442164e-08  1.7510485e-08      5.076e-05   0.0076270391  0.00032400517  3.2941041e-06    0.059913035 
+   16230    10000  5.4426002e-08  1.7618626e-08      5.076e-05   0.0076272551  0.00032400517  3.2941041e-06    0.059913035 
+   16240    10000  5.5397782e-08  1.7736486e-08      5.076e-05   0.0076274741  0.00032400517  3.2941041e-06    0.059913035 
+   16250    10000   5.635541e-08  1.7864638e-08      5.076e-05    0.007627696  0.00032400517  3.2941041e-06    0.059913035 
+   16260    10000  5.7260525e-08  1.7972311e-08      5.076e-05   0.0076279207  0.00032400517  3.2941041e-06    0.059913035 
+   16270    10000  5.8157578e-08  1.8095925e-08      5.076e-05   0.0076281481  0.00032400517  3.2941041e-06    0.059913035 
+   16280    10000  5.9059121e-08  1.8224005e-08      5.076e-05    0.007628378  0.00032400517  3.2941041e-06    0.059913035 
+   16290    10000  5.9986751e-08  1.8337714e-08      5.076e-05   0.0076286106  0.00032400517  3.2941041e-06    0.059913035 
+CFD Coupling established at step 16300
+   16300    10000  6.0892438e-08  1.8459246e-08      5.076e-05   0.0076288457  0.00032400517  3.2941041e-06    0.059913035 
+   16302    10000  6.1064592e-08  1.8479463e-08      5.076e-05    0.007628893  0.00032400517  3.2941041e-06    0.059913035 
+Loop time of 0.0531353 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.040464 (76.1529)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00354351 (6.66884)
+Outpt time (%) = 0.00085639 (1.61172)
+Other time (%) = 0.00827135 (15.5666)
+
+Nlocal:    2500 ave 2524 max 2469 min
+Histogram: 1 0 0 0 1 0 0 1 0 1
+Nghost:    740 ave 745 max 736 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17446.2 ave 17614 max 17244 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69785
+Ave neighs/atom = 6.9785
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16302    10000  6.1064592e-08  1.8479463e-08      5.076e-05    0.007628893  0.00033677465 -6.0324239e-05    0.060273454 
+   16310    10000  6.1882073e-08  1.8526529e-08      5.076e-05   0.0076290834  0.00033677465 -6.0324239e-05    0.060273454 
+   16320    10000  6.2933099e-08   1.866854e-08      5.076e-05   0.0076293245  0.00033677465 -6.0324239e-05    0.060273454 
+   16330    10000  6.4017489e-08  1.8792648e-08      5.076e-05   0.0076295689  0.00033677465 -6.0324239e-05    0.060273454 
+   16340    10000  6.5052531e-08  1.8898134e-08      5.076e-05   0.0076298164  0.00033677465 -6.0324239e-05    0.060273454 
+   16350    10000  6.6075254e-08  1.8976648e-08      5.076e-05    0.007630067  0.00033677465 -6.0324239e-05    0.060273454 
+   16360    10000  6.7118322e-08   1.907963e-08      5.076e-05   0.0076303207  0.00033677465 -6.0324239e-05    0.060273454 
+   16370    10000  6.8139658e-08  1.9190666e-08      5.076e-05   0.0076305773  0.00033677465 -6.0324239e-05    0.060273454 
+   16380    10000  6.9153734e-08  1.9300069e-08      5.076e-05   0.0076308369  0.00033677465 -6.0324239e-05    0.060273454 
+   16390    10000  7.0151123e-08  1.9403842e-08      5.076e-05   0.0076310993  0.00033677465 -6.0324239e-05    0.060273454 
+CFD Coupling established at step 16400
+   16400    10000  7.1157746e-08  1.9512515e-08      5.076e-05   0.0076313644  0.00033677465 -6.0324239e-05    0.060273454 
+   16402    10000  7.1364048e-08  1.9530933e-08      5.076e-05   0.0076314178  0.00033677465 -6.0324239e-05    0.060273454 
+Loop time of 0.0553888 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0407113 (73.5009)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00463428 (8.36681)
+Outpt time (%) = 0.00090917 (1.64143)
+Other time (%) = 0.0091341 (16.4909)
+
+Nlocal:    2500 ave 2524 max 2469 min
+Histogram: 1 0 0 0 1 0 0 1 0 1
+Nghost:    740 ave 745 max 736 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17446.8 ave 17611 max 17249 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69787
+Ave neighs/atom = 6.9787
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16402    10000  7.1364048e-08  1.9530933e-08      5.076e-05   0.0076314178  0.00032345095 -5.2805355e-05    0.060441692 
+   16410    10000  7.2332527e-08  1.9541966e-08      5.076e-05   0.0076316325  0.00032345095 -5.2805355e-05    0.060441692 
+   16420    10000  7.3577788e-08  1.9618043e-08      5.076e-05   0.0076319041  0.00032345095 -5.2805355e-05    0.060441692 
+   16430    10000  7.4800396e-08  1.9672199e-08      5.076e-05    0.007632179  0.00032345095 -5.2805355e-05    0.060441692 
+   16440    10000  7.5983981e-08  1.9732596e-08      5.076e-05   0.0076324571  0.00032345095 -5.2805355e-05    0.060441692 
+   16450    10000  7.7153312e-08   1.982874e-08      5.076e-05   0.0076327385  0.00032345095 -5.2805355e-05    0.060441692 
+   16460    10000  7.8370109e-08  1.9957363e-08      5.076e-05    0.007633023  0.00032345095 -5.2805355e-05    0.060441692 
+   16470    10000  7.9573726e-08  2.0058536e-08      5.076e-05   0.0076333105  0.00032345095 -5.2805355e-05    0.060441692 
+   16480    10000  8.0754995e-08  2.0174279e-08      5.076e-05   0.0076336009  0.00032345095 -5.2805355e-05    0.060441692 
+   16490    10000  8.1885387e-08  2.0309969e-08      5.076e-05   0.0076338942  0.00032345095 -5.2805355e-05    0.060441692 
+CFD Coupling established at step 16500
+   16500    10000   8.296091e-08  2.0441847e-08      5.076e-05   0.0076341904  0.00032345095 -5.2805355e-05    0.060441692 
+   16502    10000    8.31807e-08  2.0470703e-08      5.076e-05   0.0076342499  0.00032345095 -5.2805355e-05    0.060441692 
+Loop time of 0.0543876 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.04048 (74.4287)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00457908 (8.41934)
+Outpt time (%) = 0.0009255 (1.70167)
+Other time (%) = 0.00840306 (15.4503)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740 ave 745 max 737 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Neighs:    17444.8 ave 17602 max 17233 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69779
+Ave neighs/atom = 6.9779
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16502    10000    8.31807e-08  2.0470703e-08      5.076e-05   0.0076342499  0.00029344409 -3.7270921e-05    0.060736434 
+   16510    10000  8.4252366e-08  2.0533471e-08      5.076e-05   0.0076344896  0.00029344409 -3.7270921e-05    0.060736434 
+   16520    10000  8.5709455e-08  2.0688822e-08      5.076e-05   0.0076347924  0.00029344409 -3.7270921e-05    0.060736434 
+   16530    10000  8.7177811e-08  2.0850185e-08      5.076e-05   0.0076350988  0.00029344409 -3.7270921e-05    0.060736434 
+   16540    10000  8.8600494e-08  2.1000984e-08      5.076e-05   0.0076354087  0.00029344409 -3.7270921e-05    0.060736434 
+   16550    10000   9.004632e-08  2.1147023e-08      5.076e-05    0.007635722  0.00029344409 -3.7270921e-05    0.060736434 
+   16560    10000   9.146748e-08  2.1269584e-08      5.076e-05   0.0076360387  0.00029344409 -3.7270921e-05    0.060736434 
+   16570    10000  9.2851969e-08  2.1407751e-08      5.076e-05   0.0076363585  0.00029344409 -3.7270921e-05    0.060736434 
+   16580    10000   9.410657e-08  2.1474723e-08      5.076e-05   0.0076366814  0.00029344409 -3.7270921e-05    0.060736434 
+   16590    10000  9.5182459e-08  2.1479001e-08      5.076e-05   0.0076370074  0.00029344409 -3.7270921e-05    0.060736434 
+CFD Coupling established at step 16600
+   16600    10000  9.6417715e-08  2.1585196e-08      5.076e-05   0.0076373363  0.00029344409 -3.7270921e-05    0.060736434 
+   16602    10000   9.667311e-08  2.1610232e-08      5.076e-05   0.0076374024  0.00029344409 -3.7270921e-05    0.060736434 
+Loop time of 0.0529257 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0404303 (76.3907)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00339969 (6.42351)
+Outpt time (%) = 0.000852234 (1.61025)
+Other time (%) = 0.00824348 (15.5756)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 745 max 737 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+Neighs:    17441.2 ave 17599 max 17229 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69765
+Ave neighs/atom = 6.9765
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16602    10000   9.667311e-08  2.1610232e-08      5.076e-05   0.0076374024  0.00036382902  9.4717205e-06    0.061026825 
+   16610    10000  9.7995068e-08  2.1667555e-08      5.076e-05   0.0076376684  0.00036382902  9.4717205e-06    0.061026825 
+   16620    10000  9.9745559e-08  2.1826346e-08      5.076e-05   0.0076380044  0.00036382902  9.4717205e-06    0.061026825 
+   16630    10000  1.0146224e-07  2.1932314e-08      5.076e-05   0.0076383443  0.00036382902  9.4717205e-06    0.061026825 
+   16640    10000  1.0317406e-07  2.2036466e-08      5.076e-05   0.0076386879  0.00036382902  9.4717205e-06    0.061026825 
+   16650    10000  1.0488481e-07  2.2151991e-08      5.076e-05   0.0076390352  0.00036382902  9.4717205e-06    0.061026825 
+   16660    10000   1.066027e-07  2.2262926e-08      5.076e-05   0.0076393861  0.00036382902  9.4717205e-06    0.061026825 
+   16670    10000  1.0825508e-07  2.2332067e-08      5.076e-05   0.0076397406  0.00036382902  9.4717205e-06    0.061026825 
+   16680    10000  1.0985963e-07  2.2405664e-08      5.076e-05   0.0076400985  0.00036382902  9.4717205e-06    0.061026825 
+   16690    10000  1.1132391e-07  2.2523696e-08      5.076e-05   0.0076404598  0.00036382902  9.4717205e-06    0.061026825 
+CFD Coupling established at step 16700
+   16700    10000  1.1277775e-07  2.2621612e-08      5.076e-05   0.0076408244  0.00036382902  9.4717205e-06    0.061026825 
+   16702    10000  1.1306972e-07  2.2642699e-08      5.076e-05   0.0076408977  0.00036382902  9.4717205e-06    0.061026825 
+Loop time of 0.0556247 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0411145 (73.9141)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00355905 (6.39832)
+Outpt time (%) = 0.00103055 (1.85267)
+Other time (%) = 0.00992059 (17.8349)
+
+Nlocal:    2500 ave 2522 max 2470 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 744 max 737 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+Neighs:    17436.2 ave 17586 max 17228 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69745
+Ave neighs/atom = 6.9745
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16702    10000  1.1306972e-07  2.2642699e-08      5.076e-05   0.0076408977  0.00039265354 -2.7398958e-05    0.061167536 
+   16710    10000  1.1446146e-07  2.2656209e-08      5.076e-05   0.0076411925  0.00039265354 -2.7398958e-05    0.061167536 
+   16720    10000   1.163696e-07  2.2778979e-08      5.076e-05   0.0076415645  0.00039265354 -2.7398958e-05    0.061167536 
+   16730    10000  1.1825033e-07  2.2877479e-08      5.076e-05   0.0076419404  0.00039265354 -2.7398958e-05    0.061167536 
+   16740    10000  1.2012863e-07  2.2945413e-08      5.076e-05   0.0076423202  0.00039265354 -2.7398958e-05    0.061167536 
+   16750    10000  1.2198651e-07  2.3038547e-08      5.076e-05   0.0076427038  0.00039265354 -2.7398958e-05    0.061167536 
+   16760    10000  1.2380765e-07  2.3175471e-08      5.076e-05    0.007643091  0.00039265354 -2.7398958e-05    0.061167536 
+   16770    10000  1.2559027e-07  2.3342305e-08      5.076e-05   0.0076434818  0.00039265354 -2.7398958e-05    0.061167536 
+   16780    10000  1.2732581e-07  2.3473166e-08      5.076e-05   0.0076438761  0.00039265354 -2.7398958e-05    0.061167536 
+   16790    10000  1.2902119e-07  2.3597223e-08      5.076e-05   0.0076442738  0.00039265354 -2.7398958e-05    0.061167536 
+CFD Coupling established at step 16800
+   16800    10000   1.307286e-07  2.3766346e-08      5.076e-05   0.0076446749  0.00039265354 -2.7398958e-05    0.061167536 
+   16802    10000  1.3108466e-07  2.3786015e-08      5.076e-05   0.0076447555  0.00039265354 -2.7398958e-05    0.061167536 
+Loop time of 0.0671638 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0455154 (67.7677)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00482102 (7.17799)
+Outpt time (%) = 0.00210575 (3.13525)
+Other time (%) = 0.0147217 (21.9191)
+
+Nlocal:    2500 ave 2522 max 2470 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 744 max 737 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+Neighs:    17430.5 ave 17577 max 17222 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69722
+Ave neighs/atom = 6.9722
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16802    10000  1.3108466e-07  2.3786015e-08      5.076e-05   0.0076447555  0.00042102201 -3.3719035e-05    0.061139941 
+   16810    10000  1.3265609e-07  2.3769508e-08      5.076e-05   0.0076450795  0.00042102201 -3.3719035e-05    0.061139941 
+   16820    10000  1.3465499e-07  2.3867198e-08      5.076e-05   0.0076454879  0.00042102201 -3.3719035e-05    0.061139941 
+   16830    10000  1.3663924e-07  2.3955733e-08      5.076e-05   0.0076459002  0.00042102201 -3.3719035e-05    0.061139941 
+   16840    10000  1.3862515e-07  2.4090525e-08      5.076e-05   0.0076463163  0.00042102201 -3.3719035e-05    0.061139941 
+   16850    10000   1.406018e-07  2.4233974e-08      5.076e-05    0.007646736  0.00042102201 -3.3719035e-05    0.061139941 
+   16860    10000  1.4252186e-07  2.4381037e-08      5.076e-05   0.0076471593  0.00042102201 -3.3719035e-05    0.061139941 
+   16870    10000  1.4447588e-07  2.4525866e-08      5.076e-05    0.007647586  0.00042102201 -3.3719035e-05    0.061139941 
+   16880    10000  1.4638356e-07  2.4630699e-08      5.076e-05   0.0076480161  0.00042102201 -3.3719035e-05    0.061139941 
+   16890    10000  1.4822918e-07  2.4726539e-08      5.076e-05   0.0076484495  0.00042102201 -3.3719035e-05    0.061139941 
+CFD Coupling established at step 16900
+   16900    10000  1.5006178e-07  2.4791814e-08      5.076e-05    0.007648886  0.00042102201 -3.3719035e-05    0.061139941 
+   16902    10000  1.5042832e-07  2.4811413e-08      5.076e-05   0.0076489737  0.00042102201 -3.3719035e-05    0.061139941 
+Loop time of 0.0541876 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0407012 (75.1117)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00392259 (7.23892)
+Outpt time (%) = 0.000937028 (1.72923)
+Other time (%) = 0.00862676 (15.9202)
+
+Nlocal:    2500 ave 2522 max 2470 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 744 max 738 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+Neighs:    17428.5 ave 17576 max 17230 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69714
+Ave neighs/atom = 6.9714
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   16902    10000  1.5042832e-07  2.4811413e-08      5.076e-05   0.0076489737  0.00035125724  -6.771201e-05    0.061250216 
+   16910    10000  1.5216347e-07  2.4840663e-08      5.076e-05   0.0076493258  0.00035125724  -6.771201e-05    0.061250216 
+   16920    10000  1.5445099e-07  2.5013166e-08      5.076e-05   0.0076497695  0.00035125724  -6.771201e-05    0.061250216 
+   16930    10000   1.567489e-07  2.5169595e-08      5.076e-05   0.0076502169  0.00035125724  -6.771201e-05    0.061250216 
+   16940    10000  1.5886945e-07  2.5287149e-08      5.076e-05    0.007650668  0.00035125724  -6.771201e-05    0.061250216 
+   16950    10000  1.6105266e-07  2.5445833e-08      5.076e-05   0.0076511228  0.00035125724  -6.771201e-05    0.061250216 
+   16960    10000  1.6324815e-07  2.5621674e-08      5.076e-05   0.0076515813  0.00035125724  -6.771201e-05    0.061250216 
+   16970    10000  1.6540443e-07  2.5774571e-08      5.076e-05   0.0076520433  0.00035125724  -6.771201e-05    0.061250216 
+   16980    10000  1.6739185e-07  2.5824298e-08      5.076e-05   0.0076525089  0.00035125724  -6.771201e-05    0.061250216 
+   16990    10000  1.6934381e-07  2.5877146e-08      5.076e-05   0.0076529779  0.00035125724  -6.771201e-05    0.061250216 
+CFD Coupling established at step 17000
+   17000    10000  1.7121519e-07  2.5944121e-08      5.076e-05   0.0076534503  0.00035125724  -6.771201e-05    0.061250216 
+   17002    10000  1.7161643e-07  2.5972722e-08      5.076e-05   0.0076535451  0.00035125724  -6.771201e-05    0.061250216 
+Loop time of 0.0544599 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0405271 (74.4164)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00435399 (7.99485)
+Outpt time (%) = 0.000833139 (1.52982)
+Other time (%) = 0.00874566 (16.0589)
+
+Nlocal:    2500 ave 2523 max 2470 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 744 max 738 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+Neighs:    17427.5 ave 17580 max 17225 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69710
+Ave neighs/atom = 6.971
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17002    10000  1.7161643e-07  2.5972722e-08      5.076e-05   0.0076535451  0.00038399769 -0.00010750681    0.061236692 
+   17010    10000  1.7342943e-07  2.6009451e-08      5.076e-05   0.0076539261  0.00038399769 -0.00010750681    0.061236692 
+   17020    10000  1.7581273e-07  2.6159838e-08      5.076e-05   0.0076544057  0.00038399769 -0.00010750681    0.061236692 
+   17030    10000  1.7813623e-07  2.6230632e-08      5.076e-05   0.0076548892  0.00038399769 -0.00010750681    0.061236692 
+   17040    10000  1.8044396e-07  2.6309847e-08      5.076e-05   0.0076553765  0.00038399769 -0.00010750681    0.061236692 
+   17050    10000  1.8275524e-07  2.6412825e-08      5.076e-05   0.0076558674  0.00038399769 -0.00010750681    0.061236692 
+   17060    10000  1.8504463e-07  2.6541912e-08      5.076e-05   0.0076563618  0.00038399769 -0.00010750681    0.061236692 
+   17070    10000  1.8729001e-07  2.6666574e-08      5.076e-05   0.0076568598  0.00038399769 -0.00010750681    0.061236692 
+   17080    10000  1.8946462e-07  2.6789946e-08      5.076e-05   0.0076573611  0.00038399769 -0.00010750681    0.061236692 
+   17090    10000  1.9154559e-07  2.6906371e-08      5.076e-05   0.0076578657  0.00038399769 -0.00010750681    0.061236692 
+CFD Coupling established at step 17100
+   17100    10000  1.9364795e-07  2.7006899e-08      5.076e-05   0.0076583735  0.00038399769 -0.00010750681    0.061236692 
+   17102    10000  1.9406937e-07   2.702574e-08      5.076e-05   0.0076584754  0.00038399769 -0.00010750681    0.061236692 
+Loop time of 0.0555524 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.041205 (74.1732)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.0035312 (6.35651)
+Outpt time (%) = 0.00100959 (1.81736)
+Other time (%) = 0.00980661 (17.6529)
+
+Nlocal:    2500 ave 2523 max 2470 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 744 max 738 min
+Histogram: 2 1 0 0 0 0 0 0 0 1
+Neighs:    17426.2 ave 17581 max 17225 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69705
+Ave neighs/atom = 6.9705
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17102    10000  1.9406937e-07   2.702574e-08      5.076e-05   0.0076584754  0.00042530543 -3.9059098e-05    0.061218612 
+   17110    10000  1.9593414e-07  2.7007269e-08      5.076e-05   0.0076588846  0.00042530543 -3.9059098e-05    0.061218612 
+   17120    10000  1.9840237e-07  2.7113854e-08      5.076e-05   0.0076593993  0.00042530543 -3.9059098e-05    0.061218612 
+   17130    10000   2.007913e-07  2.7185625e-08      5.076e-05   0.0076599176  0.00042530543 -3.9059098e-05    0.061218612 
+   17140    10000  2.0311919e-07  2.7278355e-08      5.076e-05   0.0076604395  0.00042530543 -3.9059098e-05    0.061218612 
+   17150    10000  2.0548518e-07  2.7405111e-08      5.076e-05   0.0076609649  0.00042530543 -3.9059098e-05    0.061218612 
+   17160    10000  2.0784593e-07  2.7561447e-08      5.076e-05   0.0076614938  0.00042530543 -3.9059098e-05    0.061218612 
+   17170    10000  2.1019898e-07  2.7743028e-08      5.076e-05   0.0076620261  0.00042530543 -3.9059098e-05    0.061218612 
+   17180    10000   2.124788e-07  2.7795045e-08      5.076e-05   0.0076625618  0.00042530543 -3.9059098e-05    0.061218612 
+   17190    10000  2.1473719e-07  2.7906559e-08      5.076e-05   0.0076631007  0.00042530543 -3.9059098e-05    0.061218612 
+CFD Coupling established at step 17200
+   17200    10000  2.1698583e-07  2.8026228e-08      5.076e-05   0.0076636428  0.00042530543 -3.9059098e-05    0.061218612 
+   17202    10000  2.1743191e-07  2.8047674e-08      5.076e-05   0.0076637517  0.00042530543 -3.9059098e-05    0.061218612 
+Loop time of 0.0545286 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.0407606 (74.7509)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00440339 (8.07538)
+Outpt time (%) = 0.000958574 (1.75793)
+Other time (%) = 0.00840601 (15.4158)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    739.75 ave 745 max 736 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17424.2 ave 17583 max 17224 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69697
+Ave neighs/atom = 6.9697
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17202    10000  2.1743191e-07  2.8047674e-08      5.076e-05   0.0076637517  0.00052436813  5.4791523e-05    0.061351593 
+   17210    10000  2.1954112e-07  2.8047943e-08      5.076e-05   0.0076641883  0.00052436813  5.4791523e-05    0.061351593 
+   17220    10000  2.2229499e-07  2.8180986e-08      5.076e-05   0.0076647377  0.00052436813  5.4791523e-05    0.061351593 
+   17230    10000  2.2505776e-07  2.8306894e-08      5.076e-05    0.007665291  0.00052436813  5.4791523e-05    0.061351593 
+   17240    10000  2.2627892e-07  2.8181737e-08      5.076e-05    0.007665848  0.00052436813  5.4791523e-05    0.061351593 
+   17250    10000  2.2867429e-07  2.8075747e-08      5.076e-05   0.0076664088  0.00052436813  5.4791523e-05    0.061351593 
+   17260    10000  2.3114125e-07  2.8131541e-08      5.076e-05   0.0076669731  0.00052436813  5.4791523e-05    0.061351593 
+   17270    10000   2.335577e-07  2.8195383e-08      5.076e-05   0.0076675409  0.00052436813  5.4791523e-05    0.061351593 
+   17280    10000  2.3598925e-07   2.827735e-08      5.076e-05    0.007668112  0.00052436813  5.4791523e-05    0.061351593 
+   17290    10000  2.3830566e-07  2.8214972e-08      5.076e-05   0.0076686865  0.00052436813  5.4791523e-05    0.061351593 
+CFD Coupling established at step 17300
+   17300    10000  2.4063971e-07  2.8221766e-08      5.076e-05   0.0076692643  0.00052436813  5.4791523e-05    0.061351593 
+   17302    10000   2.411109e-07  2.8221998e-08      5.076e-05   0.0076693802  0.00052436813  5.4791523e-05    0.061351593 
+Loop time of 0.0546119 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.040798 (74.7054)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00396779 (7.26543)
+Outpt time (%) = 0.000870742 (1.59442)
+Other time (%) = 0.00897534 (16.4348)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.25 ave 746 max 736 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17414.5 ave 17573 max 17216 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69658
+Ave neighs/atom = 6.9658
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17302    10000   2.411109e-07  2.8221998e-08      5.076e-05   0.0076693802  0.00046410772  7.7820961e-06    0.061422993 
+   17310    10000  2.4330581e-07  2.8152539e-08      5.076e-05   0.0076698454  0.00046410772  7.7820961e-06    0.061422993 
+   17320    10000  2.4608951e-07  2.8259498e-08      5.076e-05   0.0076704305  0.00046410772  7.7820961e-06    0.061422993 
+   17330    10000  2.4889076e-07  2.8398541e-08      5.076e-05   0.0076710195  0.00046410772  7.7820961e-06    0.061422993 
+   17340    10000  2.5173822e-07  2.8497575e-08      5.076e-05   0.0076716123  0.00046410772  7.7820961e-06    0.061422993 
+   17350    10000  2.5452738e-07  2.8579664e-08      5.076e-05   0.0076722088  0.00046410772  7.7820961e-06    0.061422993 
+   17360    10000  2.5717792e-07  2.8624987e-08      5.076e-05    0.007672809  0.00046410772  7.7820961e-06    0.061422993 
+   17370    10000  2.5972354e-07  2.8700354e-08      5.076e-05   0.0076734127  0.00046410772  7.7820961e-06    0.061422993 
+   17380    10000   2.623765e-07  2.8805371e-08      5.076e-05   0.0076740198  0.00046410772  7.7820961e-06    0.061422993 
+   17390    10000  2.6503994e-07  2.8881737e-08      5.076e-05   0.0076746303  0.00046410772  7.7820961e-06    0.061422993 
+CFD Coupling established at step 17400
+   17400    10000  2.6764225e-07  2.8996932e-08      5.076e-05   0.0076752442  0.00046410772  7.7820961e-06    0.061422993 
+   17402    10000  2.6816174e-07  2.9010796e-08      5.076e-05   0.0076753673  0.00046410772  7.7820961e-06    0.061422993 
+Loop time of 0.053963 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:45 2025
+
+
+Pair  time (%) = 0.040846 (75.6925)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00369569 (6.84856)
+Outpt time (%) = 0.000856626 (1.58743)
+Other time (%) = 0.00856474 (15.8715)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.25 ave 746 max 736 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17410.8 ave 17568 max 17216 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69643
+Ave neighs/atom = 6.9643
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:45 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17402    10000  2.6816174e-07  2.9010796e-08      5.076e-05   0.0076753673  0.00039640941 -5.0539856e-05    0.061371525 
+   17410    10000  2.7043446e-07  2.8924497e-08      5.076e-05   0.0076758614  0.00039640941 -5.0539856e-05    0.061371525 
+   17420    10000  2.7341176e-07  2.9007734e-08      5.076e-05   0.0076764824  0.00039640941 -5.0539856e-05    0.061371525 
+   17430    10000  2.7641838e-07   2.909371e-08      5.076e-05    0.007677107  0.00039640941 -5.0539856e-05    0.061371525 
+   17440    10000  2.7941314e-07  2.9172305e-08      5.076e-05   0.0076777354  0.00039640941 -5.0539856e-05    0.061371525 
+   17450    10000  2.8234601e-07  2.9225373e-08      5.076e-05   0.0076783673  0.00039640941 -5.0539856e-05    0.061371525 
+   17460    10000  2.8522013e-07  2.9274578e-08      5.076e-05   0.0076790029  0.00039640941 -5.0539856e-05    0.061371525 
+   17470    10000  2.8802216e-07  2.9324773e-08      5.076e-05   0.0076796419  0.00039640941 -5.0539856e-05    0.061371525 
+   17480    10000  2.9082807e-07  2.9376813e-08      5.076e-05   0.0076802844  0.00039640941 -5.0539856e-05    0.061371525 
+   17490    10000  2.9362033e-07  2.9445334e-08      5.076e-05   0.0076809304  0.00039640941 -5.0539856e-05    0.061371525 
+CFD Coupling established at step 17500
+   17500    10000  2.9640923e-07  2.9556436e-08      5.076e-05   0.0076815797  0.00039640941 -5.0539856e-05    0.061371525 
+   17502    10000  2.9696019e-07  2.9581207e-08      5.076e-05     0.00768171  0.00039640941 -5.0539856e-05    0.061371525 
+Loop time of 0.0579802 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.04179 (72.0763)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.003741 (6.4522)
+Outpt time (%) = 0.00119781 (2.06589)
+Other time (%) = 0.0112514 (19.4056)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740 ave 746 max 734 min
+Histogram: 1 0 0 0 1 1 0 0 0 1
+Neighs:    17403.5 ave 17553 max 17214 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69614
+Ave neighs/atom = 6.9614
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17502    10000  2.9696019e-07  2.9581207e-08      5.076e-05     0.00768171  0.00031835093 -1.0740365e-05      0.0612636 
+   17510    10000  2.9920854e-07  2.9491207e-08      5.076e-05   0.0076822323  0.00031835093 -1.0740365e-05      0.0612636 
+   17520    10000  3.0217663e-07  2.9578205e-08      5.076e-05   0.0076828886  0.00031835093 -1.0740365e-05      0.0612636 
+   17530    10000  3.0517568e-07  2.9643758e-08      5.076e-05   0.0076835486  0.00031835093 -1.0740365e-05      0.0612636 
+   17540    10000  3.0816821e-07  2.9723836e-08      5.076e-05   0.0076842121  0.00031835093 -1.0740365e-05      0.0612636 
+   17550    10000  3.1109764e-07  2.9797553e-08      5.076e-05   0.0076848792  0.00031835093 -1.0740365e-05      0.0612636 
+   17560    10000   3.139282e-07   2.990736e-08      5.076e-05   0.0076855496  0.00031835093 -1.0740365e-05      0.0612636 
+   17570    10000  3.1676942e-07  3.0056694e-08      5.076e-05   0.0076862235  0.00031835093 -1.0740365e-05      0.0612636 
+   17580    10000  3.1960337e-07  3.0181006e-08      5.076e-05   0.0076869006  0.00031835093 -1.0740365e-05      0.0612636 
+   17590    10000  3.2241602e-07  3.0273785e-08      5.076e-05    0.007687581  0.00031835093 -1.0740365e-05      0.0612636 
+CFD Coupling established at step 17600
+   17600    10000  3.2517647e-07  3.0361289e-08      5.076e-05   0.0076882644  0.00031835093 -1.0740365e-05      0.0612636 
+   17602    10000    3.25722e-07  3.0383586e-08      5.076e-05   0.0076884015  0.00031835093 -1.0740365e-05      0.0612636 
+Loop time of 0.0544672 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0407493 (74.8144)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00453373 (8.32379)
+Outpt time (%) = 0.000852892 (1.56588)
+Other time (%) = 0.00833124 (15.2959)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.5 ave 747 max 735 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+Neighs:    17400.8 ave 17552 max 17215 min
+Histogram: 1 0 0 0 0 1 1 0 0 1
+
+Total # of neighbors = 69603
+Ave neighs/atom = 6.9603
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17602    10000    3.25722e-07  3.0383586e-08      5.076e-05   0.0076884015  0.00034438379  4.0217523e-05    0.061076247 
+   17610    10000  3.2800757e-07  3.0329386e-08      5.076e-05   0.0076889509  0.00034438379  4.0217523e-05    0.061076247 
+   17620    10000  3.3108677e-07  3.0493894e-08      5.076e-05   0.0076896408  0.00034438379  4.0217523e-05    0.061076247 
+   17630    10000  3.3413241e-07  3.0665993e-08      5.076e-05    0.007690334  0.00034438379  4.0217523e-05    0.061076247 
+   17640    10000   3.371618e-07  3.0840675e-08      5.076e-05   0.0076910305  0.00034438379  4.0217523e-05    0.061076247 
+   17650    10000  3.4015028e-07  3.1009148e-08      5.076e-05   0.0076917303  0.00034438379  4.0217523e-05    0.061076247 
+   17660    10000  3.4310356e-07  3.1138409e-08      5.076e-05   0.0076924333  0.00034438379  4.0217523e-05    0.061076247 
+   17670    10000  3.4595224e-07  3.1184831e-08      5.076e-05   0.0076931395  0.00034438379  4.0217523e-05    0.061076247 
+   17680    10000  3.4873691e-07  3.1287929e-08      5.076e-05   0.0076938488  0.00034438379  4.0217523e-05    0.061076247 
+   17690    10000   3.514675e-07   3.138975e-08      5.076e-05   0.0076945612  0.00034438379  4.0217523e-05    0.061076247 
+CFD Coupling established at step 17700
+   17700    10000  3.5418805e-07  3.1511528e-08      5.076e-05   0.0076952767  0.00034438379  4.0217523e-05    0.061076247 
+   17702    10000   3.547325e-07  3.1540202e-08      5.076e-05   0.0076954202  0.00034438379  4.0217523e-05    0.061076247 
+Loop time of 0.0546248 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0407896 (74.6724)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00458781 (8.39877)
+Outpt time (%) = 0.0008659 (1.58518)
+Other time (%) = 0.00838145 (15.3437)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.5 ave 747 max 735 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+Neighs:    17392.8 ave 17540 max 17209 min
+Histogram: 1 0 0 0 0 0 2 0 0 1
+
+Total # of neighbors = 69571
+Ave neighs/atom = 6.9571
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17702    10000   3.547325e-07  3.1540202e-08      5.076e-05   0.0076954202  0.00032552934  4.0699343e-05    0.061052422 
+   17710    10000  3.5717538e-07   3.150726e-08      5.076e-05   0.0076959953  0.00032552934  4.0699343e-05    0.061052422 
+   17720    10000  3.6038712e-07  3.1668357e-08      5.076e-05   0.0076967175  0.00032552934  4.0699343e-05    0.061052422 
+   17730    10000  3.6352422e-07  3.1782865e-08      5.076e-05   0.0076974431  0.00032552934  4.0699343e-05    0.061052422 
+   17740    10000  3.6660611e-07  3.1920033e-08      5.076e-05    0.007698172  0.00032552934  4.0699343e-05    0.061052422 
+   17750    10000  3.6961922e-07  3.2068389e-08      5.076e-05   0.0076989042  0.00032552934  4.0699343e-05    0.061052422 
+   17760    10000  3.7260139e-07  3.2192188e-08      5.076e-05   0.0076996395  0.00032552934  4.0699343e-05    0.061052422 
+   17770    10000  3.7550719e-07  3.2322851e-08      5.076e-05   0.0077003779  0.00032552934  4.0699343e-05    0.061052422 
+   17780    10000  3.7839806e-07  3.2461292e-08      5.076e-05   0.0077011195  0.00032552934  4.0699343e-05    0.061052422 
+   17790    10000  3.8132296e-07  3.2611849e-08      5.076e-05   0.0077018641  0.00032552934  4.0699343e-05    0.061052422 
+CFD Coupling established at step 17800
+   17800    10000  3.8420152e-07  3.2715977e-08      5.076e-05   0.0077026117  0.00032552934  4.0699343e-05    0.061052422 
+   17802    10000  3.8477177e-07  3.2728282e-08      5.076e-05   0.0077027616  0.00032552934  4.0699343e-05    0.061052422 
+Loop time of 0.0528367 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0404718 (76.5979)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00337466 (6.38695)
+Outpt time (%) = 0.000876808 (1.65947)
+Other time (%) = 0.00811342 (15.3556)
+
+Nlocal:    2500 ave 2521 max 2470 min
+Histogram: 1 0 0 0 0 1 0 0 1 1
+Nghost:    740.5 ave 746 max 736 min
+Histogram: 1 0 1 0 0 0 1 0 0 1
+Neighs:    17386 ave 17525 max 17224 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 69544
+Ave neighs/atom = 6.9544
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17802    10000  3.8477177e-07  3.2728282e-08      5.076e-05   0.0077027616  0.00038222584  -1.011794e-05    0.061061691 
+   17810    10000  3.8734151e-07  3.2623686e-08      5.076e-05   0.0077033624  0.00038222584  -1.011794e-05    0.061061691 
+   17820    10000  3.9073415e-07  3.2659922e-08      5.076e-05   0.0077041166  0.00038222584  -1.011794e-05    0.061061691 
+   17830    10000   3.940858e-07   3.269244e-08      5.076e-05   0.0077048742  0.00038222584  -1.011794e-05    0.061061691 
+   17840    10000  3.9741392e-07  3.2704181e-08      5.076e-05   0.0077056353  0.00038222584  -1.011794e-05    0.061061691 
+   17850    10000  4.0075593e-07  3.2765761e-08      5.076e-05   0.0077063997  0.00038222584  -1.011794e-05    0.061061691 
+   17860    10000  4.0409603e-07  3.2897762e-08      5.076e-05   0.0077071674  0.00038222584  -1.011794e-05    0.061061691 
+   17870    10000  4.0738613e-07  3.3082124e-08      5.076e-05   0.0077079384  0.00038222584  -1.011794e-05    0.061061691 
+   17880    10000  4.1057178e-07  3.3249511e-08      5.076e-05   0.0077087126  0.00038222584  -1.011794e-05    0.061061691 
+   17890    10000  4.1371371e-07  3.3398218e-08      5.076e-05     0.00770949  0.00038222584  -1.011794e-05    0.061061691 
+CFD Coupling established at step 17900
+   17900    10000  4.1680299e-07  3.3553897e-08      5.076e-05   0.0077102704  0.00038222584  -1.011794e-05    0.061061691 
+   17902    10000  4.1742119e-07  3.3586452e-08      5.076e-05   0.0077104269  0.00038222584  -1.011794e-05    0.061061691 
+Loop time of 0.0624552 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0447602 (71.6678)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00366405 (5.86669)
+Outpt time (%) = 0.00127023 (2.03383)
+Other time (%) = 0.0127606 (20.4317)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.75 ave 748 max 736 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+Neighs:    17378.5 ave 17534 max 17216 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 69514
+Ave neighs/atom = 6.9514
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   17902    10000  4.1742119e-07  3.3586452e-08      5.076e-05   0.0077104269  0.00040967505 -1.3037087e-05     0.06101492 
+   17910    10000  4.2011536e-07  3.3600084e-08      5.076e-05   0.0077110539  0.00040967505 -1.3037087e-05     0.06101492 
+   17920    10000  4.2363871e-07  3.3780832e-08      5.076e-05   0.0077118408  0.00040967505 -1.3037087e-05     0.06101492 
+   17930    10000  4.2715152e-07  3.3973065e-08      5.076e-05   0.0077126311  0.00040967505 -1.3037087e-05     0.06101492 
+   17940    10000  4.3063993e-07  3.4161505e-08      5.076e-05   0.0077134248  0.00040967505 -1.3037087e-05     0.06101492 
+   17950    10000  4.3408327e-07  3.4345099e-08      5.076e-05   0.0077142219  0.00040967505 -1.3037087e-05     0.06101492 
+   17960    10000  4.3746661e-07  3.4480638e-08      5.076e-05   0.0077150222  0.00040967505 -1.3037087e-05     0.06101492 
+   17970    10000  4.4075235e-07  3.4680701e-08      5.076e-05   0.0077158257  0.00040967505 -1.3037087e-05     0.06101492 
+   17980    10000  4.4400788e-07  3.4899126e-08      5.076e-05   0.0077166323  0.00040967505 -1.3037087e-05     0.06101492 
+   17990    10000  4.4719797e-07  3.5077583e-08      5.076e-05    0.007717442  0.00040967505 -1.3037087e-05     0.06101492 
+CFD Coupling established at step 18000
+   18000    10000  4.5025414e-07  3.5215975e-08      5.076e-05   0.0077182547  0.00040967505 -1.3037087e-05     0.06101492 
+   18002    10000  4.5085992e-07  3.5248988e-08      5.076e-05   0.0077184176  0.00040967505 -1.3037087e-05     0.06101492 
+Loop time of 0.0538569 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0404095 (75.0312)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00415136 (7.70814)
+Outpt time (%) = 0.000825346 (1.53248)
+Other time (%) = 0.00847069 (15.7282)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.75 ave 748 max 736 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+Neighs:    17370.8 ave 17527 max 17197 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 69483
+Ave neighs/atom = 6.9483
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18002    10000  4.5085992e-07  3.5248988e-08      5.076e-05   0.0077184176  0.00040645772   0.0001014906    0.060890561 
+   18010    10000  4.5353104e-07  3.5240103e-08      5.076e-05   0.0077190703  0.00040645772   0.0001014906    0.060890561 
+   18020    10000  4.5708418e-07   3.543066e-08      5.076e-05   0.0077198892  0.00040645772   0.0001014906    0.060890561 
+   18030    10000  4.6063538e-07   3.560316e-08      5.076e-05   0.0077207114  0.00040645772   0.0001014906    0.060890561 
+   18040    10000  4.6419491e-07  3.5766898e-08      5.076e-05   0.0077215368  0.00040645772   0.0001014906    0.060890561 
+   18050    10000  4.6766926e-07   3.589967e-08      5.076e-05   0.0077223655  0.00040645772   0.0001014906    0.060890561 
+   18060    10000  4.7104454e-07  3.6003556e-08      5.076e-05   0.0077231974  0.00040645772   0.0001014906    0.060890561 
+   18070    10000  4.7436679e-07  3.6119051e-08      5.076e-05   0.0077240324  0.00040645772   0.0001014906    0.060890561 
+   18080    10000  4.7769331e-07  3.6283594e-08      5.076e-05   0.0077248706  0.00040645772   0.0001014906    0.060890561 
+   18090    10000  4.8096923e-07  3.6460379e-08      5.076e-05   0.0077257118  0.00040645772   0.0001014906    0.060890561 
+CFD Coupling established at step 18100
+   18100    10000  4.8411101e-07  3.6568333e-08      5.076e-05    0.007726556  0.00040645772   0.0001014906    0.060890561 
+   18102    10000  4.8471589e-07  3.6568381e-08      5.076e-05   0.0077267252  0.00040645772   0.0001014906    0.060890561 
+Loop time of 0.0544776 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0405933 (74.5137)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00455452 (8.36035)
+Outpt time (%) = 0.00102988 (1.89046)
+Other time (%) = 0.00829993 (15.2355)
+
+Nlocal:    2500 ave 2522 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.75 ave 748 max 736 min
+Histogram: 1 1 0 0 1 0 0 0 0 1
+Neighs:    17362 ave 17512 max 17192 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 69448
+Ave neighs/atom = 6.9448
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18102    10000  4.8471589e-07  3.6568381e-08      5.076e-05   0.0077267252  0.00040665859  8.0639361e-05    0.060870525 
+   18110    10000  4.8745739e-07  3.6426091e-08      5.076e-05   0.0077274033  0.00040665859  8.0639361e-05    0.060870525 
+   18120    10000  4.9109555e-07  3.6458699e-08      5.076e-05    0.007728254  0.00040665859  8.0639361e-05    0.060870525 
+   18130    10000  4.9471842e-07  3.6571235e-08      5.076e-05   0.0077291081  0.00040665859  8.0639361e-05    0.060870525 
+   18140    10000  4.9834838e-07   3.669066e-08      5.076e-05   0.0077299657  0.00040665859  8.0639361e-05    0.060870525 
+   18150    10000  5.0192911e-07  3.6808886e-08      5.076e-05   0.0077308265  0.00040665859  8.0639361e-05    0.060870525 
+   18160    10000  5.0547329e-07  3.6897388e-08      5.076e-05   0.0077316906  0.00040665859  8.0639361e-05    0.060870525 
+   18170    10000  5.0896875e-07  3.6936658e-08      5.076e-05   0.0077325579  0.00040665859  8.0639361e-05    0.060870525 
+   18180    10000  5.1233679e-07  3.6954445e-08      5.076e-05   0.0077334282  0.00040665859  8.0639361e-05    0.060870525 
+   18190    10000  5.1562624e-07  3.7047196e-08      5.076e-05   0.0077343016  0.00040665859  8.0639361e-05    0.060870525 
+CFD Coupling established at step 18200
+   18200    10000  5.1890076e-07  3.7159519e-08      5.076e-05   0.0077351779  0.00040665859  8.0639361e-05    0.060870525 
+   18202    10000  5.1954701e-07  3.7171733e-08      5.076e-05   0.0077353535  0.00040665859  8.0639361e-05    0.060870525 
+Loop time of 0.0625088 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0440643 (70.493)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00388303 (6.21198)
+Outpt time (%) = 0.0015043 (2.40655)
+Other time (%) = 0.0130571 (20.8885)
+
+Nlocal:    2500 ave 2523 max 2469 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+Nghost:    740.5 ave 748 max 736 min
+Histogram: 1 1 0 1 0 0 0 0 0 1
+Neighs:    17356.5 ave 17502 max 17191 min
+Histogram: 1 0 0 0 0 2 0 0 0 1
+
+Total # of neighbors = 69426
+Ave neighs/atom = 6.9426
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18202    10000  5.1954701e-07  3.7171733e-08      5.076e-05   0.0077353535  0.00033901121  1.6040093e-05    0.060763019 
+   18210    10000  5.2227407e-07  3.7089823e-08      5.076e-05    0.007736057  0.00033901121  1.6040093e-05    0.060763019 
+   18220    10000   5.259675e-07  3.7207967e-08      5.076e-05   0.0077369395  0.00033901121  1.6040093e-05    0.060763019 
+   18230    10000   5.295912e-07     3.7324e-08      5.076e-05   0.0077378252  0.00033901121  1.6040093e-05    0.060763019 
+   18240    10000  5.3315439e-07  3.7446869e-08      5.076e-05   0.0077387142  0.00033901121  1.6040093e-05    0.060763019 
+   18250    10000   5.366765e-07  3.7580681e-08      5.076e-05   0.0077396064  0.00033901121  1.6040093e-05    0.060763019 
+   18260    10000  5.4010722e-07  3.7699064e-08      5.076e-05   0.0077405018  0.00033901121  1.6040093e-05    0.060763019 
+   18270    10000  5.4351263e-07  3.7844408e-08      5.076e-05   0.0077414003  0.00033901121  1.6040093e-05    0.060763019 
+   18280    10000  5.4679377e-07  3.7919839e-08      5.076e-05   0.0077423018  0.00033901121  1.6040093e-05    0.060763019 
+   18290    10000  5.4992579e-07  3.8030125e-08      5.076e-05   0.0077432063  0.00033901121  1.6040093e-05    0.060763019 
+CFD Coupling established at step 18300
+   18300    10000  5.5311953e-07  3.8141381e-08      5.076e-05   0.0077441136  0.00033901121  1.6040093e-05    0.060763019 
+   18302    10000  5.5374451e-07  3.8158438e-08      5.076e-05   0.0077442954  0.00033901121  1.6040093e-05    0.060763019 
+Loop time of 0.0554439 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0407078 (73.4216)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00435273 (7.85069)
+Outpt time (%) = 0.00104382 (1.88267)
+Other time (%) = 0.00933957 (16.8451)
+
+Nlocal:    2500 ave 2524 max 2470 min
+Histogram: 1 0 0 0 1 0 0 1 0 1
+Nghost:    739.75 ave 747 max 736 min
+Histogram: 2 0 1 0 0 0 0 0 0 1
+Neighs:    17344.5 ave 17501 max 17183 min
+Histogram: 1 0 0 0 1 1 0 0 0 1
+
+Total # of neighbors = 69378
+Ave neighs/atom = 6.9378
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18302    10000  5.5374451e-07  3.8158438e-08      5.076e-05   0.0077442954  0.00038477458   6.837518e-05    0.060437268 
+   18310    10000  5.5613678e-07  3.8002726e-08      5.076e-05   0.0077450237  0.00038477458   6.837518e-05    0.060437268 
+   18320    10000  5.5943327e-07  3.8060344e-08      5.076e-05   0.0077459365  0.00038477458   6.837518e-05    0.060437268 
+   18330    10000  5.6284378e-07  3.8170309e-08      5.076e-05   0.0077468523  0.00038477458   6.837518e-05    0.060437268 
+   18340    10000  5.6617089e-07  3.8175348e-08      5.076e-05   0.0077477708  0.00038477458   6.837518e-05    0.060437268 
+   18350    10000  5.6936478e-07  3.8185832e-08      5.076e-05   0.0077486922  0.00038477458   6.837518e-05    0.060437268 
+   18360    10000  5.7231966e-07  3.8211973e-08      5.076e-05   0.0077496162  0.00038477458   6.837518e-05    0.060437268 
+   18370    10000  5.7526413e-07   3.829159e-08      5.076e-05   0.0077505429  0.00038477458   6.837518e-05    0.060437268 
+   18380    10000  5.7831231e-07  3.8423051e-08      5.076e-05   0.0077514723  0.00038477458   6.837518e-05    0.060437268 
+   18390    10000  5.8136347e-07  3.8513979e-08      5.076e-05   0.0077524042  0.00038477458   6.837518e-05    0.060437268 
+CFD Coupling established at step 18400
+   18400    10000   5.843606e-07  3.8604051e-08      5.076e-05   0.0077533388  0.00038477458   6.837518e-05    0.060437268 
+   18402    10000  5.8492737e-07  3.8635687e-08      5.076e-05    0.007753526  0.00038477458   6.837518e-05    0.060437268 
+Loop time of 0.0552371 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.040618 (73.5339)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00478642 (8.66523)
+Outpt time (%) = 0.00126799 (2.29554)
+Other time (%) = 0.00856471 (15.5053)
+
+Nlocal:    2500 ave 2524 max 2472 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    740.25 ave 747 max 736 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Neighs:    17336.8 ave 17484 max 17195 min
+Histogram: 1 0 0 0 1 1 0 0 0 1
+
+Total # of neighbors = 69347
+Ave neighs/atom = 6.9347
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18402    10000  5.8492737e-07  3.8635687e-08      5.076e-05    0.007753526  0.00037252749   0.0001434164     0.06058018 
+   18410    10000  5.8773148e-07  3.8570585e-08      5.076e-05    0.007754276  0.00037252749   0.0001434164     0.06058018 
+   18420    10000  5.9153602e-07  3.8683833e-08      5.076e-05   0.0077552163  0.00037252749   0.0001434164     0.06058018 
+   18430    10000  5.9529958e-07  3.8806087e-08      5.076e-05   0.0077561598  0.00037252749   0.0001434164     0.06058018 
+   18440    10000  5.9899713e-07  3.8864488e-08      5.076e-05   0.0077571063  0.00037252749   0.0001434164     0.06058018 
+   18450    10000  6.0270936e-07  3.8950488e-08      5.076e-05   0.0077580558  0.00037252749   0.0001434164     0.06058018 
+   18460    10000  6.0637612e-07  3.9090646e-08      5.076e-05   0.0077590083  0.00037252749   0.0001434164     0.06058018 
+   18470    10000   6.099932e-07  3.9180712e-08      5.076e-05   0.0077599637  0.00037252749   0.0001434164     0.06058018 
+   18480    10000  6.1358533e-07  3.9282773e-08      5.076e-05   0.0077609221  0.00037252749   0.0001434164     0.06058018 
+   18490    10000   6.171076e-07  3.9430982e-08      5.076e-05   0.0077618834  0.00037252749   0.0001434164     0.06058018 
+CFD Coupling established at step 18500
+   18500    10000  6.2058409e-07   3.960126e-08      5.076e-05   0.0077628476  0.00037252749   0.0001434164     0.06058018 
+   18502    10000  6.2127461e-07  3.9631078e-08      5.076e-05   0.0077630408  0.00037252749   0.0001434164     0.06058018 
+Loop time of 0.05517 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0409907 (74.2988)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00383862 (6.95779)
+Outpt time (%) = 0.00111674 (2.02418)
+Other time (%) = 0.00922402 (16.7193)
+
+Nlocal:    2500 ave 2524 max 2472 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    740 ave 746 max 736 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17331 ave 17473 max 17197 min
+Histogram: 1 0 0 0 1 1 0 0 0 1
+
+Total # of neighbors = 69324
+Ave neighs/atom = 6.9324
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18502    10000  6.2127461e-07  3.9631078e-08      5.076e-05   0.0077630408  0.00041040668  0.00025349253    0.060646416 
+   18510    10000   6.244629e-07  3.9597697e-08      5.076e-05   0.0077638147  0.00041040668  0.00025349253    0.060646416 
+   18520    10000  6.2869077e-07   3.974783e-08      5.076e-05   0.0077647853  0.00041040668  0.00025349253    0.060646416 
+   18530    10000  6.3290789e-07  3.9889301e-08      5.076e-05   0.0077657593  0.00041040668  0.00025349253    0.060646416 
+   18540    10000  6.3697787e-07  3.9973952e-08      5.076e-05   0.0077667367  0.00041040668  0.00025349253    0.060646416 
+   18550    10000  6.4097325e-07  4.0029605e-08      5.076e-05   0.0077677174  0.00041040668  0.00025349253    0.060646416 
+   18560    10000  6.4494211e-07  4.0049611e-08      5.076e-05   0.0077687014  0.00041040668  0.00025349253    0.060646416 
+   18570    10000  6.4890178e-07  4.0115465e-08      5.076e-05   0.0077696886  0.00041040668  0.00025349253    0.060646416 
+   18580    10000  6.5278818e-07  4.0211343e-08      5.076e-05    0.007770679  0.00041040668  0.00025349253    0.060646416 
+   18590    10000  6.5668694e-07  4.0306925e-08      5.076e-05   0.0077716725  0.00041040668  0.00025349253    0.060646416 
+CFD Coupling established at step 18600
+   18600    10000  6.6057778e-07  4.0399857e-08      5.076e-05   0.0077726692  0.00041040668  0.00025349253    0.060646416 
+   18602    10000  6.6134338e-07  4.0415907e-08      5.076e-05   0.0077728689  0.00041040668  0.00025349253    0.060646416 
+Loop time of 0.0545352 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.040667 (74.5701)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00391711 (7.18272)
+Outpt time (%) = 0.00111561 (2.04566)
+Other time (%) = 0.00883556 (16.2016)
+
+Nlocal:    2500 ave 2525 max 2472 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    739.75 ave 747 max 734 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17322 ave 17474 max 17184 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 69288
+Ave neighs/atom = 6.9288
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18602    10000  6.6134338e-07  4.0415907e-08      5.076e-05   0.0077728689   0.0003356955  0.00024641004    0.060471773 
+   18610    10000  6.6446577e-07   4.029158e-08      5.076e-05   0.0077736688   0.0003356955  0.00024641004    0.060471773 
+   18620    10000  6.6868215e-07  4.0401502e-08      5.076e-05   0.0077746717   0.0003356955  0.00024641004    0.060471773 
+   18630    10000  6.7287344e-07  4.0516328e-08      5.076e-05   0.0077756779   0.0003356955  0.00024641004    0.060471773 
+   18640    10000  6.7697031e-07  4.0552714e-08      5.076e-05   0.0077766874   0.0003356955  0.00024641004    0.060471773 
+   18650    10000   6.810464e-07  4.0631141e-08      5.076e-05   0.0077777001   0.0003356955  0.00024641004    0.060471773 
+   18660    10000  6.8505991e-07  4.0752002e-08      5.076e-05    0.007778716   0.0003356955  0.00024641004    0.060471773 
+   18670    10000  6.8897991e-07  4.0954133e-08      5.076e-05    0.007779735   0.0003356955  0.00024641004    0.060471773 
+   18680    10000    6.92857e-07  4.1210786e-08      5.076e-05    0.007780757   0.0003356955  0.00024641004    0.060471773 
+   18690    10000  6.9671606e-07  4.1462114e-08      5.076e-05    0.007781782   0.0003356955  0.00024641004    0.060471773 
+CFD Coupling established at step 18700
+   18700    10000  7.0053614e-07  4.1650033e-08      5.076e-05   0.0077828099   0.0003356955  0.00024641004    0.060471773 
+   18702    10000   7.013047e-07  4.1685327e-08      5.076e-05   0.0077830158   0.0003356955  0.00024641004    0.060471773 
+Loop time of 0.0593222 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:46 2025
+
+
+Pair  time (%) = 0.0427403 (72.0476)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00421493 (7.10515)
+Outpt time (%) = 0.00131256 (2.21259)
+Other time (%) = 0.0110545 (18.6346)
+
+Nlocal:    2500 ave 2525 max 2473 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    740.25 ave 747 max 735 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17311.2 ave 17459 max 17181 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 69245
+Ave neighs/atom = 6.9245
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:46 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18702    10000   7.013047e-07  4.1685327e-08      5.076e-05   0.0077830158   0.0003590663  0.00011330134     0.06046348 
+   18710    10000  7.0474573e-07  4.1616643e-08      5.076e-05   0.0077838407   0.0003590663  0.00011330134     0.06046348 
+   18720    10000  7.0936912e-07  4.1788185e-08      5.076e-05    0.007784875   0.0003590663  0.00011330134     0.06046348 
+   18730    10000  7.1391228e-07  4.1980076e-08      5.076e-05   0.0077859126   0.0003590663  0.00011330134     0.06046348 
+   18740    10000  7.1835061e-07  4.2133168e-08      5.076e-05   0.0077869536   0.0003590663  0.00011330134     0.06046348 
+   18750    10000  7.2271401e-07  4.2306361e-08      5.076e-05   0.0077879978   0.0003590663  0.00011330134     0.06046348 
+   18760    10000  7.2710628e-07  4.2471334e-08      5.076e-05   0.0077890453   0.0003590663  0.00011330134     0.06046348 
+   18770    10000  7.3144667e-07  4.2610853e-08      5.076e-05    0.007790096   0.0003590663  0.00011330134     0.06046348 
+   18780    10000  7.3569662e-07   4.279975e-08      5.076e-05   0.0077911498   0.0003590663  0.00011330134     0.06046348 
+   18790    10000  7.3986379e-07   4.294549e-08      5.076e-05   0.0077922068   0.0003590663  0.00011330134     0.06046348 
+CFD Coupling established at step 18800
+   18800    10000  7.4395497e-07  4.2981077e-08      5.076e-05   0.0077932668   0.0003590663  0.00011330134     0.06046348 
+   18802    10000  7.4475775e-07  4.2992354e-08      5.076e-05   0.0077934791   0.0003590663  0.00011330134     0.06046348 
+Loop time of 0.0632834 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0442133 (69.8655)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00405088 (6.40118)
+Outpt time (%) = 0.00136255 (2.15309)
+Other time (%) = 0.0136567 (21.5802)
+
+Nlocal:    2500 ave 2525 max 2473 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    740.25 ave 747 max 735 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17307.5 ave 17451 max 17176 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+
+Total # of neighbors = 69230
+Ave neighs/atom = 6.923
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18802    10000  7.4475775e-07  4.2992354e-08      5.076e-05   0.0077934791  0.00037082191   0.0001807203     0.06018369 
+   18810    10000  7.4793221e-07  4.2792649e-08      5.076e-05   0.0077943298  0.00037082191   0.0001807203     0.06018369 
+   18820    10000  7.5231784e-07  4.2808994e-08      5.076e-05   0.0077953959  0.00037082191   0.0001807203     0.06018369 
+   18830    10000  7.5674699e-07  4.2864959e-08      5.076e-05   0.0077964654  0.00037082191   0.0001807203     0.06018369 
+   18840    10000  7.6105551e-07  4.2899971e-08      5.076e-05    0.007797538  0.00037082191   0.0001807203     0.06018369 
+   18850    10000  7.6526169e-07  4.2928855e-08      5.076e-05   0.0077986138  0.00037082191   0.0001807203     0.06018369 
+   18860    10000  7.6942116e-07  4.2973612e-08      5.076e-05   0.0077996926  0.00037082191   0.0001807203     0.06018369 
+   18870    10000  7.7351227e-07  4.3015342e-08      5.076e-05   0.0078007745  0.00037082191   0.0001807203     0.06018369 
+   18880    10000  7.7743153e-07  4.3052617e-08      5.076e-05   0.0078018594  0.00037082191   0.0001807203     0.06018369 
+   18890    10000  7.8124664e-07  4.3086854e-08      5.076e-05   0.0078029471  0.00037082191   0.0001807203     0.06018369 
+CFD Coupling established at step 18900
+   18900    10000  7.8505947e-07  4.3129529e-08      5.076e-05   0.0078040377  0.00037082191   0.0001807203     0.06018369 
+   18902    10000   7.858199e-07  4.3144169e-08      5.076e-05   0.0078042562  0.00037082191   0.0001807203     0.06018369 
+Loop time of 0.0534255 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0399259 (74.7319)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00392723 (7.35084)
+Outpt time (%) = 0.00116381 (2.17838)
+Other time (%) = 0.00840859 (15.7389)
+
+Nlocal:    2500 ave 2525 max 2473 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    741 ave 748 max 735 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17300.8 ave 17443 max 17175 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+
+Total # of neighbors = 69203
+Ave neighs/atom = 6.9203
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   18902    10000   7.858199e-07  4.3144169e-08      5.076e-05   0.0078042562  0.00037130025  0.00015532176    0.059921476 
+   18910    10000  7.8883023e-07    4.30306e-08      5.076e-05    0.007805131  0.00037130025  0.00015532176    0.059921476 
+   18920    10000  7.9282416e-07  4.3171378e-08      5.076e-05   0.0078062271  0.00037130025  0.00015532176    0.059921476 
+   18930    10000  7.9678949e-07  4.3288818e-08      5.076e-05   0.0078073261  0.00037130025  0.00015532176    0.059921476 
+   18940    10000   8.006979e-07  4.3420304e-08      5.076e-05   0.0078084279  0.00037130025  0.00015532176    0.059921476 
+   18950    10000  8.0444968e-07  4.3550331e-08      5.076e-05   0.0078095324  0.00037130025  0.00015532176    0.059921476 
+   18960    10000  8.0817414e-07  4.3706467e-08      5.076e-05   0.0078106396  0.00037130025  0.00015532176    0.059921476 
+   18970    10000   8.118852e-07  4.3911594e-08      5.076e-05   0.0078117496  0.00037130025  0.00015532176    0.059921476 
+   18980    10000  8.1560892e-07  4.4082072e-08      5.076e-05   0.0078128622  0.00037130025  0.00015532176    0.059921476 
+   18990    10000  8.1927296e-07  4.4228477e-08      5.076e-05   0.0078139775  0.00037130025  0.00015532176    0.059921476 
+CFD Coupling established at step 19000
+   19000    10000  8.2283277e-07  4.4356264e-08      5.076e-05   0.0078150954  0.00037130025  0.00015532176    0.059921476 
+   19002    10000  8.2353619e-07  4.4382265e-08      5.076e-05   0.0078153192  0.00037130025  0.00015532176    0.059921476 
+Loop time of 0.0542331 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0401771 (74.0823)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00366117 (6.75081)
+Outpt time (%) = 0.00108856 (2.00719)
+Other time (%) = 0.00930622 (17.1597)
+
+Nlocal:    2500 ave 2525 max 2473 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    740.75 ave 748 max 735 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17290.8 ave 17433 max 17167 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 69163
+Ave neighs/atom = 6.9163
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19002    10000  8.2353619e-07  4.4382265e-08      5.076e-05   0.0078153192  0.00035401485  0.00016062309     0.05950425 
+   19010    10000   8.260266e-07  4.4253179e-08      5.076e-05   0.0078162155  0.00035401485  0.00016062309     0.05950425 
+   19020    10000  8.2946372e-07  4.4420203e-08      5.076e-05    0.007817338  0.00035401485  0.00016062309     0.05950425 
+   19030    10000  8.3289066e-07  4.4633552e-08      5.076e-05   0.0078184628  0.00035401485  0.00016062309     0.05950425 
+   19040    10000  8.3620319e-07  4.4807631e-08      5.076e-05   0.0078195899  0.00035401485  0.00016062309     0.05950425 
+   19050    10000  8.3953195e-07  4.4987757e-08      5.076e-05   0.0078207192  0.00035401485  0.00016062309     0.05950425 
+   19060    10000   8.428622e-07  4.5200382e-08      5.076e-05   0.0078218509  0.00035401485  0.00016062309     0.05950425 
+   19070    10000   8.460444e-07  4.5366583e-08      5.076e-05   0.0078229848  0.00035401485  0.00016062309     0.05950425 
+   19080    10000  8.4917255e-07  4.5504369e-08      5.076e-05    0.007824121  0.00035401485  0.00016062309     0.05950425 
+   19090    10000    8.52312e-07  4.5643816e-08      5.076e-05   0.0078252596  0.00035401485  0.00016062309     0.05950425 
+CFD Coupling established at step 19100
+   19100    10000  8.5536973e-07  4.5726051e-08      5.076e-05   0.0078264004  0.00035401485  0.00016062309     0.05950425 
+   19102    10000  8.5598735e-07   4.574729e-08      5.076e-05   0.0078266288  0.00035401485  0.00016062309     0.05950425 
+Loop time of 0.052945 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0396827 (74.9508)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00421155 (7.95458)
+Outpt time (%) = 0.000906108 (1.71141)
+Other time (%) = 0.00814464 (15.3832)
+
+Nlocal:    2500 ave 2525 max 2473 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    741 ave 748 max 735 min
+Histogram: 1 0 0 1 0 1 0 0 0 1
+Neighs:    17290.2 ave 17428 max 17169 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 69161
+Ave neighs/atom = 6.9161
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19102    10000  8.5598735e-07   4.574729e-08      5.076e-05   0.0078266288  0.00036860393  0.00013471193    0.059535826 
+   19110    10000  8.5883293e-07  4.5672218e-08      5.076e-05   0.0078275434  0.00036860393  0.00013471193    0.059535826 
+   19120    10000   8.627381e-07  4.5894566e-08      5.076e-05   0.0078286892  0.00036860393  0.00013471193    0.059535826 
+   19130    10000  8.6658305e-07  4.6109281e-08      5.076e-05   0.0078298375  0.00036860393  0.00013471193    0.059535826 
+   19140    10000  8.7043132e-07  4.6356015e-08      5.076e-05   0.0078309885  0.00036860393  0.00013471193    0.059535826 
+   19150    10000  8.7421999e-07  4.6580783e-08      5.076e-05    0.007832142  0.00036860393  0.00013471193    0.059535826 
+   19160    10000  8.7785645e-07   4.685359e-08      5.076e-05    0.007833298  0.00036860393  0.00013471193    0.059535826 
+   19170    10000  8.8145825e-07  4.7142176e-08      5.076e-05   0.0078344564  0.00036860393  0.00013471193    0.059535826 
+   19180    10000  8.8503536e-07  4.7355104e-08      5.076e-05   0.0078356172  0.00036860393  0.00013471193    0.059535826 
+   19190    10000  8.8853393e-07  4.7516256e-08      5.076e-05   0.0078367803  0.00036860393  0.00013471193    0.059535826 
+CFD Coupling established at step 19200
+   19200    10000  8.9193937e-07  4.7621836e-08      5.076e-05   0.0078379455  0.00036860393  0.00013471193    0.059535826 
+   19202    10000  8.9261259e-07  4.7643273e-08      5.076e-05   0.0078381789  0.00036860393  0.00013471193    0.059535826 
+Loop time of 0.0532717 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0399148 (74.9269)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00345923 (6.49357)
+Outpt time (%) = 0.00100099 (1.87903)
+Other time (%) = 0.00889663 (16.7005)
+
+Nlocal:    2500 ave 2524 max 2474 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    741.5 ave 749 max 736 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17286.8 ave 17410 max 17182 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 69147
+Ave neighs/atom = 6.9147
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19202    10000  8.9261259e-07  4.7643273e-08      5.076e-05   0.0078381789  0.00029360172  2.5267605e-05    0.059515886 
+   19210    10000  8.9545829e-07  4.7579689e-08      5.076e-05   0.0078391129  0.00029360172  2.5267605e-05    0.059515886 
+   19220    10000   8.993908e-07  4.7789954e-08      5.076e-05   0.0078402828  0.00029360172  2.5267605e-05    0.059515886 
+   19230    10000  9.0329876e-07  4.7985992e-08      5.076e-05   0.0078414552  0.00029360172  2.5267605e-05    0.059515886 
+   19240    10000   9.072284e-07  4.8200368e-08      5.076e-05   0.0078426302  0.00029360172  2.5267605e-05    0.059515886 
+   19250    10000   9.111016e-07  4.8393067e-08      5.076e-05   0.0078438076  0.00029360172  2.5267605e-05    0.059515886 
+   19260    10000  9.1497834e-07  4.8535072e-08      5.076e-05   0.0078449876  0.00029360172  2.5267605e-05    0.059515886 
+   19270    10000  9.1882869e-07  4.8627227e-08      5.076e-05   0.0078461701  0.00029360172  2.5267605e-05    0.059515886 
+   19280    10000  9.2263297e-07  4.8746216e-08      5.076e-05   0.0078473551  0.00029360172  2.5267605e-05    0.059515886 
+   19290    10000  9.2635364e-07  4.8898227e-08      5.076e-05   0.0078485424  0.00029360172  2.5267605e-05    0.059515886 
+CFD Coupling established at step 19300
+   19300    10000  9.3000283e-07  4.9105075e-08      5.076e-05    0.007849732  0.00029360172  2.5267605e-05    0.059515886 
+   19302    10000  9.3072132e-07  4.9152622e-08      5.076e-05   0.0078499702  0.00029360172  2.5267605e-05    0.059515886 
+Loop time of 0.0524632 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0393696 (75.0424)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00393701 (7.50432)
+Outpt time (%) = 0.000972417 (1.85352)
+Other time (%) = 0.00818416 (15.5998)
+
+Nlocal:    2500 ave 2524 max 2474 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    741.5 ave 749 max 736 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17277.2 ave 17397 max 17165 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 69109
+Ave neighs/atom = 6.9109
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19302    10000  9.3072132e-07  4.9152622e-08      5.076e-05   0.0078499702  0.00035320121  2.2848318e-05    0.059212997 
+   19310    10000  9.3339596e-07  4.9161877e-08      5.076e-05   0.0078509238  0.00035320121  2.2848318e-05    0.059212997 
+   19320    10000   9.371158e-07   4.941685e-08      5.076e-05   0.0078521179  0.00035320121  2.2848318e-05    0.059212997 
+   19330    10000  9.4081741e-07  4.9677825e-08      5.076e-05   0.0078533142  0.00035320121  2.2848318e-05    0.059212997 
+   19340    10000  9.4440506e-07  4.9910331e-08      5.076e-05   0.0078545127  0.00035320121  2.2848318e-05    0.059212997 
+   19350    10000  9.4790091e-07  5.0129525e-08      5.076e-05   0.0078557134  0.00035320121  2.2848318e-05    0.059212997 
+   19360    10000  9.5133488e-07  5.0374028e-08      5.076e-05   0.0078569163  0.00035320121  2.2848318e-05    0.059212997 
+   19370    10000  9.5473916e-07  5.0683532e-08      5.076e-05   0.0078581213  0.00035320121  2.2848318e-05    0.059212997 
+   19380    10000  9.5811021e-07  5.1035589e-08      5.076e-05   0.0078593283  0.00035320121  2.2848318e-05    0.059212997 
+   19390    10000  9.6146411e-07  5.1405043e-08      5.076e-05   0.0078605373  0.00035320121  2.2848318e-05    0.059212997 
+CFD Coupling established at step 19400
+   19400    10000  9.6475635e-07  5.1755866e-08      5.076e-05   0.0078617484  0.00035320121  2.2848318e-05    0.059212997 
+   19402    10000  9.6538597e-07  5.1809127e-08      5.076e-05   0.0078619909  0.00035320121  2.2848318e-05    0.059212997 
+Loop time of 0.0523119 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0393485 (75.219)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00364963 (6.97667)
+Outpt time (%) = 0.000948572 (1.8133)
+Other time (%) = 0.00836519 (15.991)
+
+Nlocal:    2500 ave 2524 max 2474 min
+Histogram: 1 0 0 0 1 0 1 0 0 1
+Nghost:    741.5 ave 749 max 736 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17269 ave 17398 max 17159 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 69076
+Ave neighs/atom = 6.9076
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19402    10000  9.6538597e-07  5.1809127e-08      5.076e-05   0.0078619909  0.00032947256  8.8561019e-05    0.059054278 
+   19410    10000  9.6797918e-07  5.1841651e-08      5.076e-05   0.0078629614  0.00032947256  8.8561019e-05    0.059054278 
+   19420    10000  9.7165287e-07  5.2124825e-08      5.076e-05   0.0078641767  0.00032947256  8.8561019e-05    0.059054278 
+   19430    10000  9.7517695e-07   5.222357e-08      5.076e-05   0.0078653942  0.00032947256  8.8561019e-05    0.059054278 
+   19440    10000   9.786352e-07  5.2355765e-08      5.076e-05   0.0078666138  0.00032947256  8.8561019e-05    0.059054278 
+   19450    10000  9.8203864e-07  5.2464976e-08      5.076e-05   0.0078678357  0.00032947256  8.8561019e-05    0.059054278 
+   19460    10000  9.8545925e-07  5.2618117e-08      5.076e-05   0.0078690597  0.00032947256  8.8561019e-05    0.059054278 
+   19470    10000  9.8887184e-07  5.2732087e-08      5.076e-05   0.0078702858  0.00032947256  8.8561019e-05    0.059054278 
+   19480    10000  9.9217835e-07   5.281969e-08      5.076e-05    0.007871514  0.00032947256  8.8561019e-05    0.059054278 
+   19490    10000  9.9539112e-07  5.2865658e-08      5.076e-05   0.0078727443  0.00032947256  8.8561019e-05    0.059054278 
+CFD Coupling established at step 19500
+   19500    10000  9.9825023e-07  5.2932237e-08      5.076e-05   0.0078739766  0.00032947256  8.8561019e-05    0.059054278 
+   19502    10000   9.988383e-07  5.2962012e-08      5.076e-05   0.0078742233  0.00032947256  8.8561019e-05    0.059054278 
+Loop time of 0.0518622 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.039259 (75.6986)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00342651 (6.60694)
+Outpt time (%) = 0.000847589 (1.63431)
+Other time (%) = 0.00832914 (16.0601)
+
+Nlocal:    2500 ave 2523 max 2476 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742.25 ave 748 max 739 min
+Histogram: 1 0 2 0 0 0 0 0 0 1
+Neighs:    17254 ave 17374 max 17155 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+
+Total # of neighbors = 69016
+Ave neighs/atom = 6.9016
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19502    10000   9.988383e-07  5.2962012e-08      5.076e-05   0.0078742233   0.0003106381  5.3520096e-05    0.059174418 
+   19510    10000  1.0016566e-06  5.2863735e-08      5.076e-05   0.0078752109   0.0003106381  5.3520096e-05    0.059174418 
+   19520    10000   1.005662e-06  5.2972018e-08      5.076e-05   0.0078764477   0.0003106381  5.3520096e-05    0.059174418 
+   19530    10000  1.0096841e-06  5.3077504e-08      5.076e-05    0.007877687   0.0003106381  5.3520096e-05    0.059174418 
+   19540    10000  1.0136527e-06  5.3193896e-08      5.076e-05   0.0078789287   0.0003106381  5.3520096e-05    0.059174418 
+   19550    10000  1.0175219e-06  5.3318939e-08      5.076e-05   0.0078801727   0.0003106381  5.3520096e-05    0.059174418 
+   19560    10000  1.0213846e-06  5.3360798e-08      5.076e-05   0.0078814191   0.0003106381  5.3520096e-05    0.059174418 
+   19570    10000  1.0251611e-06   5.335652e-08      5.076e-05   0.0078826678   0.0003106381  5.3520096e-05    0.059174418 
+   19580    10000  1.0288548e-06  5.3348905e-08      5.076e-05   0.0078839188   0.0003106381  5.3520096e-05    0.059174418 
+   19590    10000  1.0324958e-06  5.3308458e-08      5.076e-05   0.0078851721   0.0003106381  5.3520096e-05    0.059174418 
+CFD Coupling established at step 19600
+   19600    10000  1.0361949e-06  5.3329053e-08      5.076e-05   0.0078864277   0.0003106381  5.3520096e-05    0.059174418 
+   19602    10000  1.0369377e-06  5.3344886e-08      5.076e-05   0.0078866791   0.0003106381  5.3520096e-05    0.059174418 
+Loop time of 0.0539421 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0395528 (73.3246)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00354119 (6.56481)
+Outpt time (%) = 0.00105795 (1.96126)
+Other time (%) = 0.00979014 (18.1493)
+
+Nlocal:    2500 ave 2523 max 2476 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742 ave 748 max 738 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17248 ave 17362 max 17151 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 68992
+Ave neighs/atom = 6.8992
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19602    10000  1.0369377e-06  5.3344886e-08      5.076e-05   0.0078866791  0.00023573973 -5.5502989e-05    0.059132859 
+   19610    10000  1.0400834e-06  5.3218955e-08      5.076e-05   0.0078876856  0.00023573973 -5.5502989e-05    0.059132859 
+   19620    10000    1.04437e-06  5.3362779e-08      5.076e-05    0.007888946  0.00023573973 -5.5502989e-05    0.059132859 
+   19630    10000  1.0486025e-06    5.35074e-08      5.076e-05   0.0078902091  0.00023573973 -5.5502989e-05    0.059132859 
+   19640    10000  1.0527491e-06  5.3669812e-08      5.076e-05   0.0078914746  0.00023573973 -5.5502989e-05    0.059132859 
+   19650    10000  1.0568207e-06  5.3842508e-08      5.076e-05   0.0078927425  0.00023573973 -5.5502989e-05    0.059132859 
+   19660    10000  1.0607329e-06  5.4092604e-08      5.076e-05   0.0078940128  0.00023573973 -5.5502989e-05    0.059132859 
+   19670    10000  1.0646693e-06  5.4340318e-08      5.076e-05   0.0078952855  0.00023573973 -5.5502989e-05    0.059132859 
+   19680    10000  1.0686287e-06  5.4556929e-08      5.076e-05   0.0078965605  0.00023573973 -5.5502989e-05    0.059132859 
+   19690    10000  1.0724299e-06  5.4744081e-08      5.076e-05   0.0078978378  0.00023573973 -5.5502989e-05    0.059132859 
+CFD Coupling established at step 19700
+   19700    10000  1.0760776e-06  5.5002582e-08      5.076e-05   0.0078991174  0.00023573973 -5.5502989e-05    0.059132859 
+   19702    10000  1.0768674e-06  5.5053571e-08      5.076e-05   0.0078993736  0.00023573973 -5.5502989e-05    0.059132859 
+Loop time of 0.0511982 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0388672 (75.9152)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00339439 (6.6299)
+Outpt time (%) = 0.000846422 (1.65323)
+Other time (%) = 0.00809019 (15.8017)
+
+Nlocal:    2500 ave 2523 max 2476 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742 ave 748 max 738 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+Neighs:    17240.5 ave 17353 max 17146 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 68962
+Ave neighs/atom = 6.8962
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19702    10000  1.0768674e-06  5.5053571e-08      5.076e-05   0.0078993736  0.00029861074 -5.7377673e-05     0.05912161 
+   19710    10000  1.0803009e-06  5.5063508e-08      5.076e-05   0.0079003993  0.00029861074 -5.7377673e-05     0.05912161 
+   19720    10000  1.0849712e-06  5.5347179e-08      5.076e-05   0.0079016838  0.00029861074 -5.7377673e-05     0.05912161 
+   19730    10000  1.0895604e-06  5.5572566e-08      5.076e-05   0.0079029711  0.00029861074 -5.7377673e-05     0.05912161 
+   19740    10000  1.0939853e-06  5.5722041e-08      5.076e-05   0.0079042611  0.00029861074 -5.7377673e-05     0.05912161 
+   19750    10000  1.0982393e-06  5.5847032e-08      5.076e-05   0.0079055536  0.00029861074 -5.7377673e-05     0.05912161 
+   19760    10000  1.1025235e-06  5.5966646e-08      5.076e-05   0.0079068488  0.00029861074 -5.7377673e-05     0.05912161 
+   19770    10000  1.1067117e-06    5.60214e-08      5.076e-05   0.0079081465  0.00029861074 -5.7377673e-05     0.05912161 
+   19780    10000  1.1108535e-06  5.6015215e-08      5.076e-05   0.0079094466  0.00029861074 -5.7377673e-05     0.05912161 
+   19790    10000  1.1149338e-06  5.6009423e-08      5.076e-05   0.0079107493  0.00029861074 -5.7377673e-05     0.05912161 
+CFD Coupling established at step 19800
+   19800    10000   1.118978e-06  5.6039564e-08      5.076e-05   0.0079120546  0.00029861074 -5.7377673e-05     0.05912161 
+   19802    10000  1.1197806e-06  5.6061216e-08      5.076e-05   0.0079123159  0.00029861074 -5.7377673e-05     0.05912161 
+Loop time of 0.0518946 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0388241 (74.8133)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00407691 (7.85613)
+Outpt time (%) = 0.000803442 (1.54822)
+Other time (%) = 0.0081902 (15.7824)
+
+Nlocal:    2500 ave 2523 max 2477 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742 ave 747 max 738 min
+Histogram: 1 0 0 1 1 0 0 0 0 1
+Neighs:    17229.2 ave 17346 max 17138 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+
+Total # of neighbors = 68917
+Ave neighs/atom = 6.8917
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19802    10000  1.1197806e-06  5.6061216e-08      5.076e-05   0.0079123159  0.00034536402 -9.0204045e-06    0.059159615 
+   19810    10000  1.1233154e-06  5.5942754e-08      5.076e-05   0.0079133622  0.00034536402 -9.0204045e-06    0.059159615 
+   19820    10000  1.1281471e-06  5.6126451e-08      5.076e-05   0.0079146727  0.00034536402 -9.0204045e-06    0.059159615 
+   19830    10000  1.1329478e-06  5.6378508e-08      5.076e-05    0.007915986  0.00034536402 -9.0204045e-06    0.059159615 
+   19840    10000  1.1377309e-06  5.6625827e-08      5.076e-05   0.0079173021  0.00034536402 -9.0204045e-06    0.059159615 
+   19850    10000  1.1423877e-06  5.6886923e-08      5.076e-05   0.0079186209  0.00034536402 -9.0204045e-06    0.059159615 
+   19860    10000      1.147e-06  5.7164116e-08      5.076e-05   0.0079199424  0.00034536402 -9.0204045e-06    0.059159615 
+   19870    10000  1.1516371e-06  5.7461137e-08      5.076e-05   0.0079212666  0.00034536402 -9.0204045e-06    0.059159615 
+   19880    10000  1.1561544e-06  5.7764556e-08      5.076e-05   0.0079225933  0.00034536402 -9.0204045e-06    0.059159615 
+   19890    10000  1.1604364e-06  5.7996878e-08      5.076e-05   0.0079239226  0.00034536402 -9.0204045e-06    0.059159615 
+CFD Coupling established at step 19900
+   19900    10000  1.1647259e-06   5.821024e-08      5.076e-05   0.0079252543  0.00034536402 -9.0204045e-06    0.059159615 
+   19902    10000  1.1655869e-06  5.8257433e-08      5.076e-05   0.0079255209  0.00034536402 -9.0204045e-06    0.059159615 
+Loop time of 0.0550592 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0391812 (71.1619)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.0045988 (8.35246)
+Outpt time (%) = 0.00124267 (2.25697)
+Other time (%) = 0.0100366 (18.2287)
+
+Nlocal:    2500 ave 2523 max 2477 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742.5 ave 747 max 740 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+Neighs:    17215 ave 17336 max 17120 min
+Histogram: 1 0 0 2 0 0 0 0 0 1
+
+Total # of neighbors = 68860
+Ave neighs/atom = 6.886
+Neighbor list builds = 0
+Dangerous builds = 0
+run 100    
+Setting up run at Mon Aug 25 21:15:47 2025
+
+Memory usage per processor = 10.2791 Mbytes
+    Step    Atoms         KinEng            rke         Volume       centerOf       dragtota       dragtota       dragtota 
+   19902    10000  1.1655869e-06  5.8257433e-08      5.076e-05   0.0079255209  0.00026048117 -1.1198372e-05     0.05895089 
+   19910    10000  1.1690793e-06  5.8133616e-08      5.076e-05   0.0079265884  0.00026048117 -1.1198372e-05     0.05895089 
+   19920    10000  1.1739539e-06  5.8374183e-08      5.076e-05    0.007927925  0.00026048117 -1.1198372e-05     0.05895089 
+   19930    10000  1.1786592e-06  5.8597887e-08      5.076e-05   0.0079292643  0.00026048117 -1.1198372e-05     0.05895089 
+   19940    10000  1.1833693e-06  5.8876671e-08      5.076e-05   0.0079306063  0.00026048117 -1.1198372e-05     0.05895089 
+   19950    10000   1.188142e-06   5.911618e-08      5.076e-05   0.0079319509  0.00026048117 -1.1198372e-05     0.05895089 
+   19960    10000  1.1928543e-06  5.9453903e-08      5.076e-05   0.0079332981  0.00026048117 -1.1198372e-05     0.05895089 
+   19970    10000  1.1974367e-06  5.9825278e-08      5.076e-05   0.0079346478  0.00026048117 -1.1198372e-05     0.05895089 
+   19980    10000  1.2019374e-06  6.0203351e-08      5.076e-05       0.007936  0.00026048117 -1.1198372e-05     0.05895089 
+   19990    10000  1.2064538e-06  6.0510704e-08      5.076e-05   0.0079373547  0.00026048117 -1.1198372e-05     0.05895089 
+CFD Coupling established at step 20000
+   20000    10000  1.2109341e-06  6.0807453e-08      5.076e-05   0.0079387119  0.00026048117 -1.1198372e-05     0.05895089 
+   20002    10000  1.2118186e-06  6.0864728e-08      5.076e-05   0.0079389836  0.00026048117 -1.1198372e-05     0.05895089 
+Loop time of 0.0627302 on 4 procs for 100 steps with 10000 atoms, finish time Mon Aug 25 21:15:47 2025
+
+
+Pair  time (%) = 0.0384756 (61.335)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00466631 (7.43871)
+Outpt time (%) = 0.0111721 (17.8097)
+Other time (%) = 0.00841623 (13.4166)
+
+Nlocal:    2500 ave 2523 max 2477 min
+Histogram: 1 0 0 1 0 0 1 0 0 1
+Nghost:    742.25 ave 747 max 739 min
+Histogram: 1 0 1 1 0 0 0 0 0 1
+Neighs:    17206.8 ave 17317 max 17110 min
+Histogram: 1 0 0 0 2 0 0 0 0 1
+
+Total # of neighbors = 68827
+Ave neighs/atom = 6.8827
+Neighbor list builds = 0
+Dangerous builds = 0

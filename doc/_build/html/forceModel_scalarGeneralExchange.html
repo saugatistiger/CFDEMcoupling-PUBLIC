@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>forceModel_scalarGeneralExchange command &mdash; CFDEMcoupling 3.8.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="CFDEMcoupling_Manual.html" class="icon icon-home"> CFDEMcoupling
+          </a>
+              <div class="version">
+                3.8.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">forceModel_scalarGeneralExchange command</a><ul>
+<li><a class="reference internal" href="#syntax">Syntax</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#restrictions">Restrictions</a></li>
+<li><a class="reference internal" href="#related-commands">Related commands</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="CFDEMcoupling_Manual.html">CFDEMcoupling</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="CFDEMcoupling_Manual.html" class="icon icon-home"></a> &raquo;</li>
+      <li>forceModel_scalarGeneralExchange command</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="forcemodel-scalargeneralexchange-command">
+<span id="index-0"></span><h1>forceModel_scalarGeneralExchange command<a class="headerlink" href="#forcemodel-scalargeneralexchange-command" title="Permalink to this headline"></a></h1>
+<section id="syntax">
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline"></a></h2>
+<p>Defined in couplingProperties dictionary.</p>
+<pre class="literal-block">forceModels
+(
+    scalarGeneralExchange  // must be 2nd position!
+);
+scalarGeneralExchangeProps
+{
+    useLiMason &quot;switch1&quot;; //default: DeenEtAl
+    useGeneralCorrelation &quot;switch3&quot;; //default: DeenEtAl
+    generalCorrelationParameters (1 2 3 4 5 6 7 8);
+    verbose &quot;switch2&quot;;
+    velFieldName &quot;U&quot;;
+    voidfractionFieldName &quot;voidfraction&quot;;
+    tempFieldName &quot;T&quot;;
+    partTempName &quot;Temp&quot;;
+    /* partHeatFluxName &quot;convectiveHeatFlux&quot;; //switch off for implicit coupling, e.g., to ParScale */
+    partHeatTransCoeffName &quot;heatTransCoeff&quot;;
+    partHeatFluidName &quot;heatFluid&quot;;
+    lambda value;
+    Cp value1;
+    //Lists with information for each species FOR THE PARTICLES
+    //MUST be in the same order as eulerian species in 'scalarTransportProperties'
+    //MUST correspond to property/atom in ligghts (use 'couple/cfd/speciesConvection' to auto-generate individual fields)
+    partSpeciesNames
+    (
+    speciesC
+    );
+    partSpeciesFluxNames
+    (
+    speciesCFlux
+    );
+    partSpeciesTransCoeffNames
+    (
+    speciesCTransCoeff
+    );
+    partSpeciesFluidNames
+    (
+    speciesCFluid
+    );
+    DMolecular
+    (
+    value2
+    );
+    interpolation &quot;bool1&quot;;
+    voidfractionInterpolationType &quot;type1&quot;
+    UInterpolationType &quot;type2&quot;
+    fluidScalarFieldInterpolationType &quot;type2&quot;
+    scalarViscosity switch5;
+    nu scalar5;
+    suppressProbe switch6;
+    scale scalar6;
+    maxSource scalar7;
+}</pre>
+<ul class="simple">
+<li><p><em>switch1</em> = (optional) flag to use Nusselt correlations of Li and Mason (2000)</p></li>
+<li><p><em>switch2</em> = (normally off) for verbose run</p></li>
+<li><p><em>switch3</em> = (optional) flag to use a general Nusselt number correlation (must specify parameters of this correlation in a list called ‘generalCorrelationParameters’ )</p></li>
+<li><p>generalCorrelationParameters =  list with a predefined number of parameters (for length see src code, only read if useGeneralCorrelation is set to true)</p></li>
+<li><p><em>U</em> = (optional, default “U”) name of the finite volume fluid velocity field</p></li>
+<li><p><em>voidfraction</em> = (optional, default “voidfraction”) name of the finite volume voidfraction field</p></li>
+<li><p><em>T</em> = name of the finite volume scalar temperature field</p></li>
+<li><p><em>Temp</em> = name of the DEM data representing the particles temperature</p></li>
+<li><p><em>convectiveHeatFlux</em> = name of the DEM data representing the particle-fluid convective heat flux</p></li>
+<li><p><em>heatTransCoeff</em> = name of the DEM data representing the particle-fluid heat transfer coefficient</p></li>
+<li><p><em>heatFluid</em> = name of the DEM data representing the fluid heat</p></li>
+<li><p><em>value</em> = fluid thermal conductivity [W/(m*K)]</p></li>
+<li><p><em>value1</em> = fluid specific heat capacity [W*s/(kg*K)]</p></li>
+<li><p><em>speciesC</em> = name of the DEM data representing the transport species of the particles</p></li>
+<li><p><em>speciesCFlux</em> = name of the DEM data representing the particle-fluid species flux</p></li>
+<li><p><em>speciesCTransCoeff</em> = name of the DEM data representing the particle-fluid species transfer coefficient</p></li>
+<li><p><em>speciesCFluid</em> = name of the DEM data representing the transport species of the fluid</p></li>
+<li><p><em>value2</em> = molecular diffusion coefficient [m^2/s]</p></li>
+<li><p><em>bool1</em> = (optional, normally off) flag to use interpolated voidfraction and fluid velocity values</p></li>
+<li><p><em>type1</em> = (optional, default cellPoint) interpolation type for voidfraction field</p></li>
+<li><p><em>type2</em> = (optional, default cellPointFace) interpolation type for velocity field</p></li>
+<li><p><em>type3</em> = (optional, default cellPoint) interpolation type for fluidScalarField field</p></li>
+<li><p><em>switch5</em> = (optional, default false) sub model switch, see <a class="reference internal" href="forceSubModel.html"><span class="doc">forceSubModel</span></a> for details</p></li>
+<li><p><em>scalar5</em> = (optional) optional, only if switch5 is true</p></li>
+<li><p><em>switch6</em> = (optional, default false) can be used to suppress the output of the probe model</p></li>
+<li><p><em>scalar7</em> = (optional) scaling of particle diameter: d_sim=scale*d_real. d_sim=(potentially coarse grained) particle diameter. scale=coarse graining factor. d_real= particle diameter as it is measured.</p></li>
+<li><p><em>scalar7</em> = limit maximal turbulence</p></li>
+</ul>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
+<pre class="literal-block">forceModels
+(
+    scalarGeneralExchange  // must be 2nd position!
+);
+scalarGeneralExchangeProps
+{
+    useLiMason false; //default: DeenEtAl
+    useGeneralCorrelation true; //default: DeenEtAl
+    generalCorrelationParameters
+    (
+     7.0 -10 5
+     1.0 0.17
+     1.33 -2.31 1.16
+    );
+    verbose false;
+    velFieldName &quot;U&quot;;
+    voidfractionFieldName &quot;voidfraction&quot;;
+    tempFieldName &quot;T&quot;;
+    partTempName &quot;Temp&quot;;
+    /* partHeatFluxName &quot;convectiveHeatFlux&quot;; //switch off for implicit coupling, e.g., to ParScale */
+    partHeatTransCoeffName &quot;heatTransCoeff&quot;;
+    partHeatFluidName &quot;heatFluid&quot;;
+    lambda 0.0271;
+    Cp 1007;
+    //Lists with information for each species FOR THE PARTICLES
+    //MUST be in the same order as eulerian species in 'scalarTransportProperties'
+    //MUST correspond to property/atom in ligghts (use 'couple/cfd/speciesConvection' to auto-generate individual fields)
+    partSpeciesNames
+    (
+    speciesC
+    );
+    partSpeciesFluxNames
+    (
+    speciesCFlux
+    );
+    partSpeciesTransCoeffNames
+    (
+    speciesCTransCoeff
+    );
+    partSpeciesFluidNames
+    (
+    speciesCFluid
+    );
+    DMolecular
+    (
+    1e-5
+    );
+}</pre>
+</section>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline"></a></h2>
+<p>This “forceModel” does not influence the particles or the fluid flow!
+Using the particles’ temperature and/or species a scalar field
+representing “particle-fluid heatflux” and/or “particle-fluid speciesflux” is calculated.</p>
+<p>This code is designed to realize coupled CFD-DEM simulations using LIGGGHTS
+and OpenFOAM®. Note: this code is not part of OpenFOAM® (see DISCLAIMER).</p>
+<p>Two way general scalar exchange between DEM and CFD
+convective heat and species transfer model. The standard model is that of
+Deen, N.G. et al., Review of direct numerical simulation of
+fluid-particle mass, momentum and heat transfer in dense gas-solid flows.
+Chemical Engineering Science 116 (2014) 710-724.
+This correlation is based on that of Gunn (1978).</p>
+<p>The switch ‘useGeneralCorrelation’ allows one to specify the parameters
+of the Gunn correlation as a list called ‘generalCorrelationParameters’.</p>
+<p>Alternatively, the correclation of
+Li and Mason (2000), A computational investigation of transient heat
+transfer in pneumatic transport of granular particles, Pow.Tech 112
+can be activated. However, this correlation is not suitable for
+dense granular flows.</p>
+<p>If the particleShapeType multisphere is selected, caluclations are performed for multisphere particles. In this operation mode additional input for DHc or area per particle type may be required. Without this input the multisphere variant may fail.</p>
+<p>WARNING:
+This model REQUIRES the ‘generalManual’ speciesTransportModel</p>
+</section>
+<section id="restrictions">
+<h2>Restrictions<a class="headerlink" href="#restrictions" title="Permalink to this headline"></a></h2>
+<p>Goes only with cfdemSolverPimpleImEx and cfdemSolverPisoSTM. The force model has to be the second (!!!) model in the forces list.</p>
+</section>
+<section id="related-commands">
+<h2>Related commands<a class="headerlink" href="#related-commands" title="Permalink to this headline"></a></h2>
+<p><a class="reference internal" href="forceModel.html"><span class="doc">forceModel</span></a> <a class="reference internal" href="forceModel_LaEuScalarTemp.html"><span class="doc">forceModel_LaEuScalarTemp</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, DCS Computing GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+PhasecfdemSolverPiso_turb_trial.C
+
+EXE=$(CFDEM_APP_DIR)/PhasecfdemSolverPiso_turb_trial

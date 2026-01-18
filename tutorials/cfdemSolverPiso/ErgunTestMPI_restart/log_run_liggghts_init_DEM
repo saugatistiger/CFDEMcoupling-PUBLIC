@@ -1,0 +1,161 @@
+
+//   run_liggghts_init_DEM   //
+
+/home/tigerisking/CFDEM/CFDEMcoupling-PUBLIC-v2506/tutorials/cfdemSolverPiso/ErgunTestMPI_restart/DEM
+
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2025-08-03-14:40:07 by tigerisking, git commit bbd23c8521fe0a4f3f5bfd0d3dc9a7dddd68d90b)
+atom_style      granular
+atom_modify     map array
+communicate     single vel yes
+
+boundary        m m m
+newton          off
+
+units           si
+
+region          reg block -0.015 0.015 -0.015 0.015 -0.001 0.0554 units box
+create_box      1 reg
+Created orthogonal box = (-0.015 -0.015 -0.001) to (0.015 0.015 0.0554)
+  1 by 1 by 2 MPI processor grid
+
+neighbor        0.001 bin
+neigh_modify    delay 0
+
+
+# Material properties required for granular pair styles
+
+fix         m1 all property/global youngsModulus peratomtype 5.e6
+fix         m2 all property/global poissonsRatio peratomtype 0.45
+fix         m3 all property/global coefficientRestitution peratomtypepair 1 0.3
+fix         m4 all property/global coefficientFriction peratomtypepair 1 0.5
+
+# pair style
+pair_style  gran model hertz tangential history # Hertzian without cohesion
+pair_coeff  * *
+
+# timestep, gravity
+timestep    0.00001
+fix         gravi all gravity 9.81 vector 0.0 0.0 -1.0
+
+# walls
+fix         zwalls1 all wall/gran model hertz tangential history primitive type 1  zplane 0.0
+fix         zwalls2 all wall/gran model hertz tangential history primitive type 1  zplane 0.0553
+fix         cylwalls all wall/gran model hertz tangential history primitive type 1 zcylinder 0.01385 0. 0.
+
+# particle distributions and insertion
+region      bc cylinder z 0.0 0.0 0.012 0. 0.055 units box
+fix         pts1 all particletemplate/sphere 15485863 atom_type 1 density constant 2000 radius constant 0.0005
+fix         pdd1 all particledistribution/discrete 15485867 1 pts1 1.0
+Fix particledistribution/discrete (id pdd1): distribution based on mass%:
+    pts1: d=1.000000e-03 (max. bounding sphere) mass%=100.000000%
+Fix particledistribution/discrete (id pdd1): distribution based on number%:
+    pts1: d=1.000000e-03 (max. bounding sphere) number%=100.000000%
+
+fix         ins all insert/pack seed 32452843 distributiontemplate pdd1 vel constant 0. 0. -1. insert_every once overlapcheck yes all_in yes particles_in_region 10000 region bc
+
+# apply nve integration to all particles that are inserted as single particles
+fix         integr all nve/sphere
+
+# screen output
+compute         rke all erotate/sphere
+thermo_style    custom step atoms ke c_rke vol
+thermo          1000
+thermo_modify   lost ignore norm no
+
+# insert the first particles so that dump is not empty
+run         1
+Setting up run at Mon Aug 25 21:15:12 2025
+
+INFO: Resetting random generator for region bc
+INFO: Particle insertion ins: inserting every 0 steps
+Memory usage per processor = 4.41485 Mbytes
+    Step    Atoms         KinEng            rke         Volume 
+       0        0              0              0      5.076e-05 
+insertion: proc 1 at 0 %
+insertion: proc 0 at 0 %
+insertion: proc 1 at 10 %
+insertion: proc 0 at 10 %
+insertion: proc 1 at 20 %
+insertion: proc 0 at 20 %
+insertion: proc 0 at 30 %
+insertion: proc 1 at 30 %
+insertion: proc 1 at 40 %
+insertion: proc 0 at 40 %
+insertion: proc 0 at 50 %
+insertion: proc 1 at 50 %
+insertion: proc 0 at 60 %
+insertion: proc 1 at 60 %
+insertion: proc 0 at 70 %
+insertion: proc 1 at 70 %
+insertion: proc 0 at 80 %
+insertion: proc 1 at 80 %
+insertion: proc 0 at 90 %
+insertion: proc 1 at 90 %
+insertion: proc 0 at 100 %
+insertion: proc 1 at 100 %
+INFO: Particle insertion ins: inserted 10000 particle templates (mass 1.047198e-02) at step 1
+ - a total of 10000 particle templates (mass 1.047198e-02) inserted so far.
+       1    10000   0.0052365014              0      5.076e-05 
+Loop time of 0.0197877 on 2 procs for 1 steps with 10000 atoms, finish time Mon Aug 25 21:15:12 2025
+
+
+Pair  time (%) = 0.000256034 (1.2939)
+Neigh time (%) = 0.00520042 (26.281)
+Comm  time (%) = 0.000358751 (1.813)
+Outpt time (%) = 9.7107e-05 (0.490743)
+Other time (%) = 0.0138754 (70.1213)
+
+Nlocal:    5000 ave 5049 max 4951 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:    314.5 ave 315 max 314 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Neighs:    31375 ave 31602 max 31148 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 62750
+Ave neighs/atom = 6.275
+Neighbor list builds = 1
+Dangerous builds = 0
+dump        dmp all custom 5000 post/dump.liggghts_init id type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+#force : f_couple_cfd[0] f_couple_cfd[1] f_couple_cfd[2]
+#node : f_couple_cfd[6]
+#cell id : f_couple_cfd[7]
+
+run         10000 upto
+Setting up run at Mon Aug 25 21:15:12 2025
+
+Memory usage per processor = 8.23053 Mbytes
+    Step    Atoms         KinEng            rke         Volume 
+       1    10000   0.0052365014              0      5.076e-05 
+    1000    10000   0.0045088493  3.2957116e-05      5.076e-05 
+    2000    10000    0.003235011  3.6932939e-05      5.076e-05 
+    3000    10000    0.001007237  4.4996628e-05      5.076e-05 
+    4000    10000  1.3924492e-05  6.9003355e-06      5.076e-05 
+    5000    10000  5.9818673e-06  3.2134707e-06      5.076e-05 
+    6000    10000  2.0640059e-06   1.301169e-06      5.076e-05 
+    7000    10000  7.3037796e-07  5.4782962e-07      5.076e-05 
+    8000    10000  3.0593226e-07  2.2695392e-07      5.076e-05 
+    9000    10000  1.1258311e-07  8.9328263e-08      5.076e-05 
+   10000    10000  5.4791653e-08  4.7587765e-08      5.076e-05 
+Loop time of 21.2259 on 2 procs for 9999 steps with 10000 atoms, finish time Mon Aug 25 21:15:33 2025
+
+
+Pair  time (%) = 9.32076 (43.9123)
+Neigh time (%) = 0.445867 (2.10058)
+Comm  time (%) = 0.07393 (0.348301)
+Outpt time (%) = 0.0649046 (0.305781)
+Other time (%) = 11.3204 (53.3331)
+
+Nlocal:    5000 ave 10000 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:    87697.5 ave 175395 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 175395
+Ave neighs/atom = 17.5395
+Neighbor list builds = 115
+Dangerous builds = 0
+write_restart   post/restart/liggghts.restart
+System init for write_restart ...
