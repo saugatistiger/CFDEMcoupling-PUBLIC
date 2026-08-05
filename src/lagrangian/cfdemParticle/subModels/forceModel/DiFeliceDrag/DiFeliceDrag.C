@@ -67,10 +67,7 @@ DiFeliceDrag::DiFeliceDrag
     voidfractionFieldName_(propsDict_.lookup("voidfractionFieldName")),
     voidfraction_(sm.mesh().lookupObject<volScalarField> (voidfractionFieldName_)),
     UsFieldName_(propsDict_.lookup("granVelFieldName")),
-    UsField_(sm.mesh().lookupObject<volVectorField> (UsFieldName_)),
-    tau_vis_(sm.mesh().lookupObject<volVectorField>("tau_vis")),
-    LiftDir_(sm.mesh().lookupObject<volVectorField>("LiftDir")),
-    k_(sm.mesh().lookupObject<volScalarField>("k"))
+    UsField_(sm.mesh().lookupObject<volVectorField> (UsFieldName_))
 {
     // suppress particle probe
     if (probeIt_ && propsDict_.found("suppressProbe"))
@@ -149,9 +146,6 @@ void DiFeliceDrag::setForce() const
     scalar magUr(0);
     scalar Rep(0);
     scalar Cd(0);
-    vector tau_vis(0,0,0);
-    vector LiftDir(0,0,0);
-    scalar k(0);
 
     #include "resetVoidfractionInterpolator.H"
     #include "resetUInterpolator.H"
@@ -186,7 +180,6 @@ void DiFeliceDrag::setForce() const
 
                 Us = particleCloud_.velocity(index);
                 ds = 2*particleCloud_.radius(index);
-                k = k_[cellI];
                 dParcel = ds;
                 forceSubM(0).scaleDia(ds,index); //caution: this fct will scale ds!
                 Ur = Ufluid-Us;
@@ -201,19 +194,6 @@ void DiFeliceDrag::setForce() const
                                                 rho,
                                                 forceSubM(0).verbose()
                                              );
-                tau_vis   = tau_vis_[cellI];
-                /*
-                if (mag(tau_vis)>0)   
-                {
-                    for (int ii=0;ii<3;++ii)
-                    {
-                        if ((Ur[ii]!=0) && (mag(Ur)!=0))
-                        {    
-                            Ur[ii] = Foam::sqrt(Ur[ii]*Ur[ii] + (abs(Ur[ii])/mag(Ur))*0.6*k);
-                        }
-                    }
-                }
-                */
                 nuf = nufField[cellI];
                 rho = rhoField[cellI];
                 magUr = mag(Ur);

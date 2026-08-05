@@ -75,7 +75,7 @@ SS_turb_lift_mod_20251111::SS_turb_lift_mod_20251111
     U_(sm.mesh().lookupObject<volVectorField> (velFieldName_)),
     tau_vis_(sm.mesh().lookupObject<volVectorField>("tau_vis")),
     LiftDir_(sm.mesh().lookupObject<volVectorField>("LiftDir")),
-    k_(sm.mesh().lookupObject<volScalarField>("k")),
+    p_(sm.mesh().lookupObject<volScalarField>("p")),
     useSecondOrderTerms_(false), sm_ (sm),
     UsFieldName_(propsDict_.lookup("granVelFieldName")),
     UsField_(sm.mesh().lookupObject<volVectorField> (UsFieldName_))
@@ -91,7 +91,7 @@ SS_turb_lift_mod_20251111::SS_turb_lift_mod_20251111
     //propsDict_(dict.subDict(name == "" ? typeName + "Props" : name + "Props"));
     //set default switches (hard-coded default = false)
     forceSubM(0).setSwitches(0,true);  // enable treatExplicit, otherwise this force would be implicit in slip vel! - IMPORTANT!
-    forceSubM(0).setSwitches(1,true); 
+    forceSubM(0).setSwitches(1,false); //New!!!!!!!!!! 20260430 for the contribution in Ksl 
 
     for (int iFSub=0;iFSub<nrForceSubModels();iFSub++)
         forceSubM(iFSub).readSwitches();
@@ -121,6 +121,7 @@ SS_turb_lift_mod_20251111::~SS_turb_lift_mod_20251111()
 
 void SS_turb_lift_mod_20251111::setForce() const
 {
+    volVectorField gradP_ = fvc::grad(p_);
     const volScalarField& nufField = forceSubM(0).nuField();
     const volScalarField& rhoField = forceSubM(0).rhoField();
     //treeSearch_(propsDict_.lookupOrDefault<Switch>("treeSearch", true));
@@ -143,13 +144,14 @@ void SS_turb_lift_mod_20251111::setForce() const
     scalar nuf(0);
     scalar rho(0);
     scalar voidfraction(1);
-    scalar k(0);
     scalar Rep(0);
     scalar Rew(0);
     scalar Cd(0);
     vector vorticity(0,0,0);
     volVectorField vorticity_ = fvc::curl(U_);  
     vector force(0,0,0);
+    vector gradP;
+    scalar Vs;
 
     #include "resetVorticityInterpolator.H"
     #include "resetUInterpolator.H"
@@ -179,7 +181,7 @@ void SS_turb_lift_mod_20251111::setForce() const
                     Ufluid = U_[cellI];
                     voidfraction = voidfraction_[cellI];
                 }
-                k = k_[cellI];
+                gradP = gradP_[cellI];
 		        tau_vis	= tau_vis_[cellI];
                 LiftDir = LiftDir_[cellI];
                 Ur = Ufluid-Us;
@@ -222,15 +224,16 @@ void SS_turb_lift_mod_20251111::setForce() const
                     vector drag_vis_lift(0,0,0);
                     U_star[0] = Foam::sqrt((mag(tau_vis[1])+mag(tau_vis[2]))/rho);
                     Ks_st[0] = U_star[0]*ds/(nuf);
-
+                    Vs = particleCloud_.cfdemCloud::particleVolume(index);
                     if (mag(drag_vis)>0)
                     {
-                        drag_vis_lift = drag;
+                        drag_vis_lift = drag + drag_vis - Vs*gradP*rho;
                     }
-                    
+                    double n = 1.0;
                     if (U_star[0] != 0)
                     {
-                        L_turb_ratio[0] = 2.5*std::exp(-std::pow(log10(Ks_st[0])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[0]*Ks_st[0]));   
+                        //L_turb_ratio[0] = 2.5*std::exp(-std::pow(log10(Ks_st[0])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[0]*Ks_st[0]));
+                        L_turb_ratio[0] = 0.5 * std::pow(n * (1.8 * (1 - std::exp(-Ks_st[0] / 10.0)) + 0.3 * Ks_st[0] * std::exp(-Ks_st[0] / 10.0)), 2);
                     }
                     lift[0] = (((Foam::sqrt(std::pow(drag_vis_lift[1],2)+std::pow(drag_vis_lift[2],2)))  * L_turb_ratio[0]))*LiftDir[0];
 
@@ -238,7 +241,8 @@ void SS_turb_lift_mod_20251111::setForce() const
                     Ks_st[1] = U_star[1]*ds/(nuf);
                     if (U_star[1] != 0)
                     {
-                        L_turb_ratio[1] = 2.5*std::exp(-std::pow(log10(Ks_st[1])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[1]*Ks_st[1]));   
+                        L_turb_ratio[1] = 0.5 * std::pow(n * (1.8 * (1 - std::exp(-Ks_st[1] / 10.0)) + 0.3 * Ks_st[1] * std::exp(-Ks_st[1] / 10.0)), 2);
+                        //L_turb_ratio[1] = 2.5*std::exp(-std::pow(log10(Ks_st[1])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[1]*Ks_st[1]));   
                     }
                     lift[1] = (((Foam::sqrt(std::pow(drag_vis_lift[0],2)+std::pow(drag_vis_lift[2],2)))* L_turb_ratio[1]))*LiftDir[1];
 
@@ -246,7 +250,8 @@ void SS_turb_lift_mod_20251111::setForce() const
                     Ks_st[2] = U_star[2]*ds/(nuf);
                     if (U_star[2] != 0)
                     {
-                        L_turb_ratio[2] = 2.5*std::exp(-std::pow(log10(Ks_st[2])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[2]*Ks_st[2]));   
+                        L_turb_ratio[2] = 0.5 * std::pow(n * (1.8 * (1 - std::exp(-Ks_st[2] / 10.0)) + 0.3 * Ks_st[2] * std::exp(-Ks_st[2] / 10.0)), 2);
+                        //L_turb_ratio[2] = 2.5*std::exp(-std::pow(log10(Ks_st[2])-1.25,2)/0.18) + 1.5*(1-std::exp(-0.1*Ks_st[2]*Ks_st[2]));   
                     }
                     lift[2] = (((Foam::sqrt(std::pow(drag_vis_lift[0],2)+std::pow(drag_vis_lift[1],2)))* L_turb_ratio[2]))*LiftDir[2];
                     force = lift + drag_vis;

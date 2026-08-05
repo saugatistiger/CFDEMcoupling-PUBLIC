@@ -90,24 +90,44 @@ int main(int argc, char *argv[])
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        Info << "I ma here!!!!!!" << endl;
             #include "readTimeControls.H"
             #include "CourantNo.H"
+       Info << "I am here!!!!!!!!!!!!!!!!!" << endl;
             #include "setDeltaT.H"
+	////////////////////////////////////////////////////////////////////////////////////////
+       	//volScalarField kField = turbulence->k();
+	//volScalarField epsField = turbulence->epsilon();
+	//volScalarField nutField = turbulence->nut();
+	volScalarField magU = mag(U);
 
+	//Info << "min(k): " << gMin(kField)
+     	//<< " max(k): " << gMax(kField) << endl;
+
+	//Info << "min(eps): " << gMin(epsField)
+     	//	<< " max(eps): " << gMax(epsField) << endl;
+
+	//Info << "max(nut): " << gMax(nutField) << endl;
+
+	Info << "min(voidfraction): " << gMin(voidfraction) << endl;
+	Info << "max(U): " << gMax(magU) << endl;
+	////////////////////////////////////////////////////////////////////////////////////////
         // do particle stuff
         particleCloud.clockM().start(1,"Global");
         particleCloud.clockM().start(2,"Coupling");
-        Info<< "I am Here" << endl;
+	//bool hasEvolved = false;
         bool hasEvolved = particleCloud.evolve(voidfraction,Us,U);
         if(hasEvolved)
         {
             particleCloud.smoothingM().smoothenAbsolutField(particleCloud.forceM(0).impParticleForces());
         }
-    
+
         Ksl = particleCloud.momCoupleM(particleCloud.registryM().getProperty("implicitCouple_index")).impMomSource();
         Ksl.correctBoundaryConditions();
 	voidfraction.correctBoundaryConditions();
-        alpha = (pow(voidfraction,1));
+	voidfraction = max(voidfraction, 0.1);
+	voidfraction = min(voidfraction, 0.95);
+        alpha = voidfraction;
 	neeta = 1;
         surfaceScalarField voidfractionf = fvc::interpolate(voidfraction);
         phi = voidfractionf*phiByVoidfraction;
@@ -166,7 +186,6 @@ int main(int argc, char *argv[])
 
                     surfaceScalarField phiS(fvc::interpolate(Us) & mesh.Sf());
                     phi += rUAf*(fvc::interpolate(Ksl/rho) * phiS);
-
                     if (modelType=="A")
                         rUAvoidfraction = volScalarField("(voidfraction2|A(U))",rUA*voidfraction*voidfraction);
 
@@ -215,13 +234,21 @@ int main(int argc, char *argv[])
         {
             Info << "skipping flow solution." << endl;
         }
-	#include "deltaY_20251023.H"
+	#include "deltaY_20260408.H"
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
-
+	forAll(alpha, i)
+	{
+		if (!std::isfinite(tau_vis[i].x()) ||
+    		!std::isfinite(tau_vis[i].y()) ||
+    		!std::isfinite(tau_vis[i].z()))
+		{
+    			Info << "Negative Negative!!!!!!" << endl;
+		}
+	}
         particleCloud.clockM().stop("Flow");
         particleCloud.clockM().stop("Global");
     }

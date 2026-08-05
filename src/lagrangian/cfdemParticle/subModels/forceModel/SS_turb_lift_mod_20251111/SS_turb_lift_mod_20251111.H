@@ -100,11 +100,13 @@ private:
 
     const volVectorField& U_;
 
+    const volScalarField& p_;
+
     word voidfractionFieldName_;
 
     const volScalarField& voidfraction_;
 
-    const volScalarField& k_;
+    //const volScalarField& k_;
 
     const volVectorField& LiftDir_;
 

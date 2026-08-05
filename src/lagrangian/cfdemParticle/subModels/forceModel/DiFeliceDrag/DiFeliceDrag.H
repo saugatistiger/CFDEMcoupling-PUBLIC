@@ -64,15 +64,9 @@ private:
 
     const volVectorField& U_;
 
-    const volVectorField& tau_vis_;
-
-    const volScalarField& k_;
-
     word voidfractionFieldName_;
 
     const volScalarField& voidfraction_;
-
-    const volVectorField& LiftDir_;
 
     word UsFieldName_;   
 

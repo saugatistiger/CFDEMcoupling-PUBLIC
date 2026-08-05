@@ -67,6 +67,9 @@ $(forceModels)/volWeightedAverage/volWeightedAverage.C
 $(forceModels)/SS_turb_lift_mod_NUMAP/SS_turb_lift_mod_NUMAP.C
 $(forceModels)/SS_turb_lift_mod/SS_turb_lift_mod.C
 $(forceModels)/SS_turb_lift_mod_20251111/SS_turb_lift_mod_20251111.C
+$(forceModels)/SS_turb_no_lift_mod_20260603/SS_turb_no_lift_mod_20260603.C
+$(forceModels)/SS_turb_DiFelice_mod_20260603/SS_turb_DiFelice_mod_20260603.C
+$(forceModels)/SS_turb_DiFelice_vis_mod_20260603/SS_turb_DiFelice_vis_mod_20260603.C
 
 $(forceSubModels)/forceSubModel/forceSubModel.C
 $(forceSubModels)/forceSubModel/newForceSubModel.C

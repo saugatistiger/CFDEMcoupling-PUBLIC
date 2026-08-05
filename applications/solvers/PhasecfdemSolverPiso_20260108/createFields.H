@@ -183,6 +183,21 @@ dimensionedScalar D50
     ).lookup("D50")
     );
 
+dimensionedScalar u_star
+    (
+    IOdictionary
+    (
+    IOobject
+    (
+        IOobject::groupName("transportProperties", U.group()),
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+    ).lookup("u_star")
+    );
+
 Info<< "Reading/calculating face flux field phi\n" << endl;
 surfaceScalarField phi
  (

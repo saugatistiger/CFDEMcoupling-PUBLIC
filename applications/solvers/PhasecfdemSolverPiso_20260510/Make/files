@@ -1,0 +1,4 @@
+PhasecfdemSolverPiso_turb_20260510.C
+
+EXE=$(CFDEM_APP_DIR)/PhasecfdemSolverPiso_turb_20260510
+
