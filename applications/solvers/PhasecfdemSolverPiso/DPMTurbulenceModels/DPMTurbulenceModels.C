@@ -72,6 +72,9 @@ makeLaminarModel(Stokes);
 #include "kEpsilon_TD.H"
 makeRASModel(kEpsilon_TD);
 
+#include "kEpsilon_TD_imp.H"
+makeRASModel(kEpsilon_TD_imp);
+
 #include "kEpsilon.H"
 makeRASModel(kEpsilon);
 

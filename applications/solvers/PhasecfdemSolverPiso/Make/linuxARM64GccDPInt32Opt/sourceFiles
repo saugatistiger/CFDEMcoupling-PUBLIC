@@ -1,4 +1,4 @@
 SOURCE = \
-PhasecfdemSolverPiso.C \
+PhasecfdemSolverPiso_NUMAP.C \
 
 # sources

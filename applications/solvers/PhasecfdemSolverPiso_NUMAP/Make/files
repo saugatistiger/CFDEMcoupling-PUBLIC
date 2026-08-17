@@ -1,3 +1,0 @@
-PhasecfdemSolverPiso_NUMAP.C
-
-EXE=$(CFDEM_APP_DIR)/PhasecfdemSolverPiso_turb_diss_NUMAP

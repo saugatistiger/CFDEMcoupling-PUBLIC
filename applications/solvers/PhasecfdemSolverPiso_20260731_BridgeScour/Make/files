@@ -1,4 +1,0 @@
-PhasecfdemSolverPiso_20260731_BridgeScour.C
-
-EXE=$(CFDEM_APP_DIR)/PhasecfdemSolverPiso_20260731_BridgeScour
-

@@ -1,4 +1,0 @@
-PhasecfdemSolverPiso_turb_20260108.C
-
-EXE=$(CFDEM_APP_DIR)/PhasecfdemSolverPiso_turb_20260108
-

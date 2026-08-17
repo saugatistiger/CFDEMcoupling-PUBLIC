@@ -1,4 +1,5 @@
 
+
 /*---------------------------------------------------------------------------*\
     CFDEMcoupling - Open Source CFD-DEM coupling
 
@@ -37,7 +38,9 @@ Description
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
-
+#include "transportModel.H"
+#include <queue>
+#include <map>
 #include "OFversion.H"
 #include "DPMIncompressibleTurbulenceModel.H"
 #include "pisoControl.H"
@@ -55,6 +58,7 @@ Description
 #include "clockModel.H"
 #include "smoothingModel.H"
 #include "forceModel.H"
+#include <cmath>
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -81,49 +85,49 @@ int main(int argc, char *argv[])
         cfdemCloud particleCloud(mesh);
     #endif
     #include "checkModelType.H"
-
+    Random rndGen(label(0));
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
             #include "readTimeControls.H"
             #include "CourantNo.H"
             #include "setDeltaT.H"
-
+	////////////////////////////////////////////////////////////////////////////////////////
+	volScalarField magU = mag(U); 
+	Info << "min(voidfraction): " << gMin(voidfraction) << endl;
+	Info << "max(U): " << gMax(magU) << endl;
+	////////////////////////////////////////////////////////////////////////////////////////
         // do particle stuff
         particleCloud.clockM().start(1,"Global");
         particleCloud.clockM().start(2,"Coupling");
-        Info<< "I am Here" << endl;
+	//bool hasEvolved = false;
         bool hasEvolved = particleCloud.evolve(voidfraction,Us,U);
         if(hasEvolved)
         {
             particleCloud.smoothingM().smoothenAbsolutField(particleCloud.forceM(0).impParticleForces());
         }
-    
+
         Ksl = particleCloud.momCoupleM(particleCloud.registryM().getProperty("implicitCouple_index")).impMomSource();
         Ksl.correctBoundaryConditions();
 	voidfraction.correctBoundaryConditions();
-        alpha = (pow(voidfraction,1));
+	voidfraction = max(voidfraction, 0.1);
+	voidfraction = min(voidfraction, 0.95);
+        alpha = voidfraction;
+	neeta = 1;
         surfaceScalarField voidfractionf = fvc::interpolate(voidfraction);
         phi = voidfractionf*phiByVoidfraction;
 	surfaceScalarField alphaf = fvc::interpolate(alpha);
         surfaceScalarField alphaPhi = phi*alphaf;
         gradAlpha = mag(fvc::grad(voidfraction));
-//	forAll(owner, facei)
-// 	{
-// 	delta[facei] = C[neighbour[facei]] - C[owner[facei]];
-// 	}
-	#include "deltaY.H"
-///////////////////////////////////////////////////////////////////////////////        //Force Checks
-        #include "forceCheckIm.H"
 
+        #include "forceCheckIm.H"
+        #include "deltaY_20260601.H"
         //#include "solverDebugInfo.H"
         particleCloud.clockM().stop("Coupling");
 
         particleCloud.clockM().start(26,"Flow");
-
         if(particleCloud.solveFlow())
         {
             // Pressure-velocity PISO corrector
@@ -168,13 +172,12 @@ int main(int argc, char *argv[])
 
                     surfaceScalarField phiS(fvc::interpolate(Us) & mesh.Sf());
                     phi += rUAf*(fvc::interpolate(Ksl/rho) * phiS);
-
                     if (modelType=="A")
                         rUAvoidfraction = volScalarField("(voidfraction2|A(U))",rUA*voidfraction*voidfraction);
 
                     // Update the fixedFluxPressure BCs to ensure flux consistency
                     #include "fixedFluxPressureHandling.H"
-                    
+                    Info << "nuEff max: " <<  endl;
                     // Non-orthogonal pressure corrector loop
   		    while (piso.correctNonOrthogonal())
                     {
@@ -217,17 +220,38 @@ int main(int argc, char *argv[])
         {
             Info << "skipping flow solution." << endl;
         }
-
+    //#include "U_p.H"
+	//#include "deltaY_20260510.H"
+	Info << "nuEff max: " << max(turbulence->nuEff()).value() << endl;
+	Info << "grad(U) max: " << max(mag(fvc::grad(U))).value() << endl;
+	shearStress = 2.0 * rho * turbulence->nuEff() * symm(fvc::grad(U));
+	Info << "shearStress max: " << max(mag(shearStress)).value() << endl;
+    	shearStress_mod = shearStress;
+    	forAll ( alpha, i)
+    	{
+		if (neeta[i] > 0)
+		{
+			shearStress_mod[i][1]=tau_vis[i][0];
+		}
+     	}
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
-
+	forAll(alpha, i)
+	{
+		if (!std::isfinite(tau_vis[i].x()) ||
+    		!std::isfinite(tau_vis[i].y()) ||
+    		!std::isfinite(tau_vis[i].z()))
+		{
+    			Info << "Negative Negative!!!!!!" << endl;
+		}
+	}
         particleCloud.clockM().stop("Flow");
         particleCloud.clockM().stop("Global");
+       
     }
-
     Info<< "End\n" << endl;
 
     return 0;

@@ -1,4 +1,5 @@
-    Info<< "Reading field p\n" << endl;
+
+Info<< "Reading field p\n" << endl;
     volScalarField p
     (
         IOobject
@@ -99,7 +100,7 @@
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE 
      ),
      mag(fvc::grad(voidfraction))
  );
@@ -120,7 +121,110 @@ volScalarField alpha
      ),
      (pow(voidfraction,1))
  );
+
 #endif
+
+Info<< "Initalizing the parameter to identify the Bed Surface" << endl;
+volScalarField neeta
+ (
+     IOobject
+     (
+        "neeta",
+        runTime.timeName(),
+         mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+     ),
+	mesh,
+	dimensionedScalar("zero", dimless, 0.0)
+     //0.*voidfraction
+ );
+
+volVectorField tau_vis
+ (
+     IOobject
+     (
+        "tau_vis",
+        runTime.timeName(),
+         mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+     ),
+	mesh,
+	dimensionedVector("zero", dimensionSet(1, -1, -2, 0, 0), vector(0.0,0.0,0.0))
+ );
+
+volVectorField LiftDir
+(
+    IOobject
+    (
+        "LiftDir",        // name
+        runTime.timeName(),     // current time directory
+        mesh,                   // mesh reference
+        IOobject::NO_READ,      // don't read from file
+        IOobject::NO_WRITE   // write automatically
+    ),
+    mesh,
+    dimensionedVector("zero", dimensionSet(0, 0, 0, 0, 0, 0, 0), vector(0.0,0.0,0.0))
+);
+
+dimensionedScalar D50
+    (
+    IOdictionary
+    (
+    IOobject
+    (
+        IOobject::groupName("transportProperties", U.group()),
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+    ).lookup("D50")
+    );
+
+volSymmTensorField shearStress
+(
+    IOobject
+    (
+        "shearStress",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE 
+    ),
+    mesh,
+    dimensionedSymmTensor("zero", dimensionSet(1, -1, -2, 0, 0, 0, 0), Zero)
+);
+
+volSymmTensorField shearStress_mod
+(
+    IOobject
+    (
+        "shearStress_mod",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE 
+    ),
+    mesh,
+    dimensionedSymmTensor("zero", dimensionSet(1, -1, -2, 0, 0, 0, 0), Zero)
+);
+
+dimensionedScalar u_star
+    (
+    IOdictionary
+    (
+    IOobject
+    (
+        IOobject::groupName("transportProperties", U.group()),
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+    ).lookup("u_star")
+    );
 
 Info<< "Reading/calculating face flux field phi\n" << endl;
 surfaceScalarField phi
@@ -131,7 +235,7 @@ surfaceScalarField phi
         runTime.timeName(),
          mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE 
      ),
      linearInterpolate(U*voidfraction) & mesh.Sf()
  );
@@ -145,7 +249,7 @@ surfaceScalarField phiByVoidfraction
     runTime.timeName(),
     mesh,
     IOobject::NO_READ,
-    IOobject::NO_WRITE
+    IOobject::NO_WRITE 
  ),
  linearInterpolate(U) & mesh.Sf()
 );
@@ -159,7 +263,7 @@ volScalarField deltaY
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE 
         ),
         0.*p
     );
