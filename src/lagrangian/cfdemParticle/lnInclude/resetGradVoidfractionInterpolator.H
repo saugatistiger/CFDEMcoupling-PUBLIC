@@ -1,1 +1,0 @@
-../cfdTools/resetInterpolators/resetGradVoidfractionInterpolator.H

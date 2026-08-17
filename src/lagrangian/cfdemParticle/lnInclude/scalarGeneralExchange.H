@@ -1,1 +1,0 @@
-../subModels/forceModel/scalarGeneralExchange/scalarGeneralExchange.H

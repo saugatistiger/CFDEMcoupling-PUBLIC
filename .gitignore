@@ -1,0 +1,13 @@
+# WSL/Windows download-marker artifacts
+*:Zone*Identifier*
+
+# OpenFOAM/wmake build artifacts
+lnInclude/
+Make/linux*/
+Make/darwin*/
+*.o
+*.dep
+
+# editor/OS cruft
+*~
+.DS_Store

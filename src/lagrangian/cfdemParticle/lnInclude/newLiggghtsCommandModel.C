@@ -1,1 +1,0 @@
-../subModels/liggghtsCommandModel/liggghtsCommandModel/newLiggghtsCommandModel.C

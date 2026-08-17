@@ -1,1 +1,0 @@
-../generalManual/generalManual.H

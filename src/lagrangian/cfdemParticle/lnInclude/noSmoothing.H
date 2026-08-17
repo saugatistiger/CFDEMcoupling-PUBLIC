@@ -1,1 +1,0 @@
-../subModels/smoothingModel/noSmoothing/noSmoothing.H
