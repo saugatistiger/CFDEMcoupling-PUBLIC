@@ -7,6 +7,8 @@
   
 </div>
 
+> **This fork adds custom bed load transport / bridge scour CFD-DEM solvers.** See [`CUSTOM_SOLVERS.md`](CUSTOM_SOLVERS.md) for details.
+
 ## The extended version of CFDEM®coupling is constantly developed and maintained by DCS Computing GmbH - you can find more information [here](https://www.aspherix-dem.com/software/cfdemcoupling-functionalities/)
 
 This repository contains older, publicly available versions of CFDEM®coupling (referred to as "CFDEM®coupling-PUBLIC").
